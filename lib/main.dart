@@ -1,30 +1,62 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:bot_toast/bot_toast.dart';
+import 'package:ceshi1/config/dataconfig/GlobalConfig.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutterdemo1/home.dart';
 
-void main(){
-  runApp(MyApp());
+import 'init/Appalication.dart';
+import 'pages/home/setting.dart';
+import 'package:flutter/material.dart';
+
+
+void main(List<String> args)async{
+  
+  runZonedGuarded(
+    () => init(),
+    // ignore: avoid_print
+    (err, stace) => print(FlutterErrorDetails(exception: err, stack: stace)),
+    zoneSpecification: ZoneSpecification(
+      print: (Zone self, ZoneDelegate parent, Zone zone, String line) {
+        if (line.length > 800) {
+          parent.print(zone, '字符串长度为 ${line.length}');
+        } else {
+          parent.print(zone, line);
+        }
+      },
+    ),
+  );
 }
+init() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await GlobalConfig.init();
+  runApp( Application());
+} 
 
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
 
-class _MyAppState extends State<MyApp> {
+
+
+
+
+
+
+class MyApp extends StatelessWidget {
+  
+  const MyApp({super.key});
+  
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize:  const Size(1280, 720),
-      minTextAdapt: true,
-      splitScreenMode: true,
-      builder: (content,child){
-        return MaterialApp(
-          home: HomePage(),
-        );
-      });
+     final bottoast  = BotToastInit();
+    return  MaterialApp(
+       builder: (context, child) { 
+              //easyLoading(context, child);s
+              return bottoast(context, child);},
+      home: ScreenUtilInit(
+        designSize: const Size(1280, 720),
+        builder: (b,a){
+        return const Settings();
+      }),
+    );
   }
 }
