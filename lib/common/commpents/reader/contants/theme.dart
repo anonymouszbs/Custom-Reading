@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
@@ -136,11 +138,16 @@ class ReaderThemeC extends GetxController{
   Rx<String> currentTitle = "".obs;
   Rx<double> readerFontSize = 22.0.obs;
   Rx<bool> pageTurnAnimation = true.obs;
-  ScrollController scrollController = ScrollController(keepScrollOffset: true,initialScrollOffset: 100);
+  ScrollController tocScrollController = ScrollController(keepScrollOffset: true);
   changeTheme(type){
     theme = type;
   }
-  
+  tocScorllTo(int i){
+   Timer(Duration(milliseconds: 500),(){
+     final itemHeight = tocScrollController.position.maxScrollExtent / i;
+    tocScrollController.animateTo(itemHeight*currentindex.value, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+   })
+;  }
  
  
 }

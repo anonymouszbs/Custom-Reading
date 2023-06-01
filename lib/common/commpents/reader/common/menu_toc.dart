@@ -36,9 +36,11 @@ class MenuToc extends StatelessWidget {
                       removeTop: true,
                       removeBottom: true,
                       context: context,
+                      
                       child: ListView.separated(
+                          
                           physics: const ClampingScrollPhysics(),
-                          controller: ReaderThemeC.current.scrollController,
+                          controller: ReaderThemeC.current.tocScrollController,
                           cacheExtent: 46,
                           itemBuilder: (context, index) {
                             if (index == 0) {
@@ -68,6 +70,7 @@ class MenuToc extends StatelessWidget {
                           },
                           separatorBuilder: (BuildContext context, int index) {
                             return Divider(
+                              
                               indent: 16,
                               endIndent: 16,
                               height: 0,
@@ -75,7 +78,7 @@ class MenuToc extends StatelessWidget {
                               color: ReaderThemeC.current.theme.value.dividerColor,
                             );
                           },
-                          itemCount: chapters.length + 1)))
+                          itemCount: chapters.length + 1,)))
             ],
           )),tab: ReaduiType.LEFT,);
   }

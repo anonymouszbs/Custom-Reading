@@ -56,6 +56,9 @@ class _MenuSettingsState extends State<MenuSettings> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Switch(
+                              
+                               activeColor: ReaderThemeC.current.theme.value.primaryColor,
+                               inactiveThumbColor: ReaderThemeC.current.theme.value.pannelContainerColor,
                                 value: isPageTurn,
                                 onChanged: (v) {
                                   isPageTurn = v;

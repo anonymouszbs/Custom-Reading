@@ -19,5 +19,14 @@ class FindBookApi{
 
     return await _dio.post(baseUrl, data: postdata, options: Options(headers: options));
   }
-  
+
+  static const String downloadUrl = '${ApiService.baseUrl}download';
+
+  static Future<Response> geTdownloadRes(dynamic data) async {
+    var postdata = data;
+    postdata ["UserID"]  = UserStateController.current.user.id.toString();
+    postdata ["username"] = UserStateController.current.user.username.toString();
+    postdata ["pwd"] = UserStateController.current.user.pwd.toString();
+    return await _dio.post(downloadUrl, data: postdata, options: Options(headers: options));
+  }
 }

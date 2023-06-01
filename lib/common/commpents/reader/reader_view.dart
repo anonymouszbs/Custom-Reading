@@ -13,6 +13,7 @@ import 'package:ceshi1/common/commpents/reader/common/menu_toc.dart';
 import 'package:ceshi1/common/commpents/reader/common/menu_top.dart';
 import 'package:ceshi1/common/commpents/reader/contants/floatcontroller.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
+import 'package:ceshi1/common/network/download.dart';
 import 'package:ceshi1/widgets/Floatbut.dart';
 
 import 'package:flutter/foundation.dart';
@@ -89,6 +90,7 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                 BotToast.removeAll(cTopId);
                 showtop = false;
                 leftUI(type: MenuType.TOC);
+                
               } else if (showleft == true && menuType == MenuType.TOC) {
                 BotToast.removeAll(cLeftId);
                 showleft = false;
@@ -97,6 +99,7 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                 leftUI(type: MenuType.TOC);
               }
               menuType = MenuType.TOC;
+              
             },
             onThemeStyleTap: () {
               if (showtop) {
@@ -202,10 +205,11 @@ class _ReaderViewPageState extends State<ReaderViewPage>
             String source = '''
         rendition.display('$type');
         ''';
-
             webViewController.evaluateJavascript(source: source);
           },
         );
+        ReaderThemeC.current.tocScorllTo(chapterList.length);
+        break;
       case MenuType.PROGRESS:
         child = const MenuProgress();
         break;
@@ -275,7 +279,10 @@ class _ReaderViewPageState extends State<ReaderViewPage>
     webViewController.addJavaScriptHandler(
         handlerName: 'chapterChange',
         callback: (args) {
+          
           int a = 0;
+          ReaderThemeC.current.currentTitle.value = args[0]['title'];
+          
           if (kDebugMode) {
             print(args[0]);
           }
@@ -284,12 +291,13 @@ class _ReaderViewPageState extends State<ReaderViewPage>
           // }
           chapterList.map((e) {
             Map<dynamic, dynamic> map = e;
-            if (map.containsValue(args[0])||UtilsToll.findkeysOrvalues(map, args[0])) {
+            if (map.containsValue(args[0]['href'])||UtilsToll.findkeysOrvalues(map, args[0]['href'])) {
               if (kDebugMode) {
                 print(map['label']);
               }
-              ReaderThemeC.current.currentTitle.value = map['label'];
-              ReaderThemeC.current.currentindex.value = a;
+              
+              ReaderThemeC.current.currentTitle.value = args[0]['title'];
+             // ReaderThemeC.current.currentindex.value = a;
             }
             a++;
 
@@ -335,7 +343,7 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                 Size(ScreenUtil().screenWidth, ScreenUtil().screenHeight);
             webViewController.evaluateJavascript(
                 source:
-                    'load(${size.width.toInt()},${size.height.toInt()});');
+                    'load(${size.width.toInt()},${size.height.toInt()},);');
           },
           
           initialSettings: InAppWebViewSettings(

@@ -43,7 +43,7 @@ class _MenuTypeListState extends State<MenuTypeList>
         alignment: Alignment.topLeft,
         width: ScreenUtil().setWidth(1116),
         height: ScreenUtil().setHeight(961),
-        child:MenuFindBar() ,
+        child:const MenuFindBar() ,
        );
   }
 }

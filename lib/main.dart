@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/config/dataconfig/GlobalConfig.dart';
+import 'package:ceshi1/pages/login/login.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'init/Appalication.dart';
-import 'pages/home/setting.dart';
 import 'package:flutter/material.dart';
 
 
@@ -29,6 +30,8 @@ void main(List<String> args)async{
 init() async{
   WidgetsFlutterBinding.ensureInitialized();
   await GlobalConfig.init();
+  
+SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
   runApp( Application());
 } 
 
@@ -55,7 +58,7 @@ class MyApp extends StatelessWidget {
       home: ScreenUtilInit(
         designSize: const Size(1280, 720),
         builder: (b,a){
-        return const Settings();
+        return const Transp();
       }),
     );
   }

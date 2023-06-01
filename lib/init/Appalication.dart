@@ -3,12 +3,16 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/commpents/reader/contants/floatcontroller.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
+import 'package:ceshi1/common/network/download.dart';
 import 'package:ceshi1/config/routers/routers.dart';
+import 'package:ceshi1/pages/home/controller/leftbarcontroller.dart';
 import 'package:ceshi1/untils/theme_tool.dart';
 import 'package:ceshi1/untils/utils_tool.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
+import '../config/controller/user_state_controller.dart';
 
 class Application extends StatelessWidget {
   Application({Key? key}) : super(key: key);
@@ -17,7 +21,7 @@ class Application extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(1280, 720),
+      designSize: const Size(1366, 1024),
       builder: (context, child) {
       return GetMaterialApp(
           initialRoute: UtilsToll.configrootpageid(), //初始化入口
@@ -47,10 +51,18 @@ class Application extends StatelessWidget {
 class AllControllerBinding implements Bindings {
   @override
   void dependencies() {
-    // Get.put<UserStateController>(
-    //   UserStateController(),
-    //   permanent: true,
-    // );
+     Get.put<DonwloadSource>(
+      DonwloadSource(),
+      permanent: true,
+    );
+    Get.put<UserStateController>(
+      UserStateController(),
+      permanent: true,
+    );
+    Get.put<LeftBarCtr>(
+      LeftBarCtr(),
+      permanent: true,
+    );
     // Get.put<ReadController>(
     //   ReadController(),
     //   permanent: true,
@@ -63,6 +75,7 @@ class AllControllerBinding implements Bindings {
       ReaderThemeC(),
       permanent: true
     );
+
     // GloblConfig.initnormaldata();
   }
 }

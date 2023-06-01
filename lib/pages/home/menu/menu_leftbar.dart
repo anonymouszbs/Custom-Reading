@@ -1,5 +1,8 @@
+import 'package:ceshi1/pages/home/controller/leftbarcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/state_manager.dart';
 
 class MenuLeftBar extends StatefulWidget {
   final void Function(int index) onTap;
@@ -10,6 +13,7 @@ class MenuLeftBar extends StatefulWidget {
 
 class _MenuLeftBarState extends State<MenuLeftBar>
     with SingleTickerProviderStateMixin {
+
   late AnimationController _controller;
   List menulist = [
     {"探索发现":"tab_find"},
@@ -48,12 +52,21 @@ class _MenuLeftBarState extends State<MenuLeftBar>
             widget.onTap(index);
             setState(() {
               currentindex = index;
+              LeftBarCtr.current.subint.value=0;
             });
           },
           child: Row(
           children: [
+            
             index==currentindex? SizedBox(width: 20,height: 20,child: Image.asset("assets/img/tab_arrow.png",fit: BoxFit.cover,),):Container(width: 20,),
-            index==currentindex? Image.asset("assets/img/$value.png"):Image.asset("assets/img/${value}_normal.png"),
+            Stack(
+              children: [
+                
+                index==currentindex? Image.asset("assets/img/$value.png"):Image.asset("assets/img/${value}_normal.png"),
+               // ignore: unrelated_type_equality_checks
+               index==1? Obx(() => LeftBarCtr.current.subint==0? Container():Text( LeftBarCtr.current.subint.value.toString(),style: const TextStyle(color: Color(0xffFFC54F)),)):Container()
+              ],
+            ),
             Text(key,style: TextStyle(color: index==currentindex? Color(0xffFFCF61):Color(0xff666666),fontSize: ScreenUtil().setSp(24)),),
             
           ],

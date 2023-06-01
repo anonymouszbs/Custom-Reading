@@ -21,6 +21,8 @@ class FloatStyle {
 }
 
 class FloatController extends GetxController {
+
+  
   static FloatController get current => Get.find<FloatController>();
   Rx<FloatStyle> floatStyle = FloatStyle().obs;
   Rx<bool> isshow = false.obs;

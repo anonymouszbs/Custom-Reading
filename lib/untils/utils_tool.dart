@@ -1,4 +1,5 @@
 import 'package:ceshi1/config/dataconfig/pageid_config.dart';
+import 'package:ceshi1/pages/login/routers/login_page_id.dart';
 import 'package:flutter/services.dart';
 import 'dart:ui' as ui;
 
@@ -10,6 +11,8 @@ class UtilsToll {
     String rootroute = PageIdConfig.home;
     // ignore: unused_local_variable
     int intal = CommonSpUtil.getfirstinstal();
+
+    rootroute = LoginPageId.login;
     return rootroute;
   }
   //获取图片第一帧

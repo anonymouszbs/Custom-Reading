@@ -38,6 +38,8 @@ class MenuBottom extends StatelessWidget {
                                 .current.theme.value.pannelTextColor),
                         onPressed: () {
                           onTocTap();
+                          //让他滚动到指定位置
+                         
                         },
                         child: Icon(
                           Icons.menu,

@@ -28,7 +28,7 @@
 			bottom: 0;
 			right: 0;
 			padding-top: 20px;
-			
+
 			padding-right: 25px;
 			padding-left: 25px;
 			font-size: 15px;
@@ -47,10 +47,13 @@
 		var currentContents, currentCfg;
 		var width;
 		var timer;
-		function load(w, h) {
+
+		function load(w, h,bytes) {
 			//初始化赋值参数
 			width = w;
-			book.open("test.epub").then(function () {
+			alert(bytes);
+			var blob = new Blob([bytes], { type: 'application/epub+zip' });
+			book.open(blog).then(function () {
 				rendition = book.renderTo("viewer", {
 					width: w,
 					height: h, // 分页模式下 最好固定宽高
@@ -65,7 +68,7 @@
 					window.flutter_inappwebview.callHandler("callChapter", toc);
 				});
 				book.ready.then(() => {
-					//pageNumId.style.display = "block";
+					pageNumId.style.display = "block";
 					///主题初始化及切换
 					rendition.themes.register("观云", "css/theme.css");
 					rendition.themes.register("榛子", "css/theme.css");
@@ -79,7 +82,7 @@
 					///设置字体
 					rendition.themes.fontSize('22px');
 					///显示viewer
-					rendition.display(0);
+					rendition.display(1);
 					///监听文本选择
 					rendition.on("selected", buildBookSelected);
 					//监听鼠标单击
@@ -91,16 +94,14 @@
 						return false;
 					});
 					///监听翻页
-					rendition.on('relocated',function(location){
-						///获取当前内容
-						// const [a, b] = [rendition.currentLocation().start.cfi, rendition.currentLocation().end.cfi]
-						// book.getRange(makeRangeCfi(a, b)).then(range => {
-						//     alert(range.toString());
-						// })
-						pageNumId.innerHTML = location.end.displayed.page+"/"+location.end.displayed.total;
+					rendition.on('relocated', function (location) {
+
+						pageNumId.innerHTML = location.end.displayed.page + "/" + location.end.displayed.total;
 						clearInterval(timer);
+						var title = gettitle();
+						title.href = location.end.href + "#" + title.id;
 						timer = setTimeout(() => {
-							window.flutter_inappwebview.callHandler("chapterChange", location.end.href);
+							window.flutter_inappwebview.callHandler("chapterChange", title);
 							clearInterval(timer);
 						}, 1500);
 
@@ -119,42 +120,60 @@
 			});
 
 		}
-		const makeRangeCfi = (a, b) => {
-			    const CFI = new ePub.CFI()
-			    const start = CFI.parse(a), end = CFI.parse(b)
-			    const cfi = {
-			        range: true,
-			        base: start.base,
-			        path: {
-			            steps: [],
-			            terminal: null
-			        },
-			        start: start.path,
-			        end: end.path
-			    }
-			    const len = cfi.start.steps.length
-			    for (let i = 0; i < len; i++) {
-			        if (CFI.equalStep(cfi.start.steps[i], cfi.end.steps[i])) {
-			            if (i == len - 1) {
-			                // Last step is equal, check terminals
-			                if (cfi.start.terminal === cfi.end.terminal) {
-			                    // CFI's are equal
-			                    cfi.path.steps.push(cfi.start.steps[i])
-			                    // Not a range
-			                    cfi.range = false
-			                }
-			            } else cfi.path.steps.push(cfi.start.steps[i])
-			        } else break
-			    }
-			    cfi.start.steps = cfi.start.steps.slice(cfi.path.steps.length)
-			    cfi.end.steps = cfi.end.steps.slice(cfi.path.steps.length)
-			
-			    return 'epubcfi(' + CFI.segmentString(cfi.base)
-			        + '!' + CFI.segmentString(cfi.path)
-			        + ',' + CFI.segmentString(cfi.start)
-			        + ',' + CFI.segmentString(cfi.end)
-			        + ')'
+		///获取标题
+		function gettitle() {
+
+			if (rendition.getContents().length > 1) {
+
+				var array = {
+					id: rendition.getContents()[1].document.body.firstElementChild.id,
+					title: rendition.getContents()[1].document.body.firstElementChild.textContent
+				};
+				return array;
+			} else {
+				var array = {
+					id: rendition.getContents()[0].document.body.firstElementChild.id,
+					title: rendition.getContents()[0].document.body.firstElementChild.textContent
+				};
+				return array;
 			}
+		}
+		const makeRangeCfi = (a, b) => {
+			const CFI = new ePub.CFI()
+			const start = CFI.parse(a), end = CFI.parse(b)
+			const cfi = {
+				range: true,
+				base: start.base,
+				path: {
+					steps: [],
+					terminal: null
+				},
+				start: start.path,
+				end: end.path
+			}
+			const len = cfi.start.steps.length
+			for (let i = 0; i < len; i++) {
+				if (CFI.equalStep(cfi.start.steps[i], cfi.end.steps[i])) {
+					if (i == len - 1) {
+						// Last step is equal, check terminals
+						if (cfi.start.terminal === cfi.end.terminal) {
+							// CFI's are equal
+							cfi.path.steps.push(cfi.start.steps[i])
+							// Not a range
+							cfi.range = false
+						}
+					} else cfi.path.steps.push(cfi.start.steps[i])
+				} else break
+			}
+			cfi.start.steps = cfi.start.steps.slice(cfi.path.steps.length)
+			cfi.end.steps = cfi.end.steps.slice(cfi.path.steps.length)
+
+			return 'epubcfi(' + CFI.segmentString(cfi.base)
+				+ '!' + CFI.segmentString(cfi.path)
+				+ ',' + CFI.segmentString(cfi.start)
+				+ ',' + CFI.segmentString(cfi.end)
+				+ ')'
+		}
 		var isscroll = false;
 		function 下一页(time) {
 			if (isscroll) {
@@ -193,12 +212,12 @@
 
 				if (currentStep >= steps) {
 					var movenum = distance - (stepDistance * currentStep);
-					
+
 					if (type == "上一页") {
 						movenum = -movenum;
-						
+
 					}
-					
+
 					document.getElementsByClassName("epub-container")[0].scrollBy(movenum, 0);
 					isscroll = false;
 					clearInterval(scrollInterval);
@@ -210,7 +229,7 @@
 		}
 
 		function 划线(color) {
-			
+
 			rendition.annotations.highlight(currentCfg, {
 				// 属性  例如 name:"name" -> data-name='name'
 			}, function () {

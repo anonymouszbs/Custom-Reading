@@ -4,6 +4,11 @@ import '../../config/dataconfig/normal_string_config.dart';
 import '../../untils/sp_util.dart';
 
 class CommonSpUtil{
+
+
+
+
+  
   //获取token
   
  static String? getUserToken(){

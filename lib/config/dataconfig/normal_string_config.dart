@@ -9,4 +9,7 @@ static const String usertoken = "usertoken";
 static const String userinfo = "userinfo";
 //用户第一次安装表示标识
 static const String firstinstal = "firstinstal";
+
+//下载标识
+static const String bookDownload = "bookDownload";
 }

@@ -28,6 +28,9 @@ Future<File> copyAssetToFile(String assetPath, String filePath) async {
 // 拷贝demo到沙盒
 Future<void> copyDemoToSandBox() async {
   Directory cache = await getTemporaryDirectory();
+
+
+  print(cache.path);
 //  if (exists) return;
   final manifestContent = await rootBundle.loadString('AssetManifest.json');
   final Map<String, dynamic> manifestMap = json.decode(manifestContent);

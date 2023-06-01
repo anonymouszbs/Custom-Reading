@@ -17,9 +17,6 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-
-
-
 class Transp extends StatefulWidget {
   const Transp({super.key});
 
@@ -28,19 +25,19 @@ class Transp extends StatefulWidget {
 }
 
 class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
-  
   bool isagree = false, taploginbutton = false;
   late AnimationController animationController;
   late TextEditingController username = TextEditingController(text: "admin125");
   late TextEditingController pwd = TextEditingController(text: "123456");
   late StreamSubscription<bool> keyboardSubscription;
-  
-@override
+
+  @override
   void dispose() {
     // TODO: implement dispose
-   
+
     super.dispose();
   }
+
   @override
   void initState() {
     animationController = AnimationController(
@@ -50,25 +47,27 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
   }
+
   ///处理登录
-  login()async{
-    var data = {
-      "username":username.text,
-      "pwd":pwd.text
-    };
+  login() async {
+    var data = {"username": username.text, "pwd": pwd.text};
     var reponse = await ApiService.Login(data);
     var jsondata = json.decode(reponse.data);
 
-    if(jsondata['code']==1){
-      UserStateController.current.loadSucess(UserMoel.fromJson(jsondata['data']));
-      BotToast.showText(text: "登陆中...",duration: Duration(milliseconds: 1000),onClose: (){
-        animationController.forward();
-      });
-    }else{
-      BotToast.showText(text:jsondata['msg'] );
+    if (jsondata['code'] == 1) {
+      UserStateController.current
+          .loadSucess(UserMoel.fromJson(jsondata['data']));
+      BotToast.showText(
+          text: "登陆中...",
+          duration: Duration(milliseconds: 1000),
+          onClose: () {
+            animationController.forward();
+          });
+    } else {
+      BotToast.showText(text: jsondata['msg']);
     }
-    
   }
+
   Widget textDL() {
     return ShaderMask(
       blendMode: BlendMode.srcIn,
@@ -97,58 +96,54 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
       ])),
     );
   }
-   double speed = 1.00;
-   String listentext = "Logo";
+
+  double speed = 1.00;
+  String listentext = "Logo";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Stack(
       children: [
         const Pub_Bg(),
-         Positioned(
-            bottom: ScreenUtil().setHeight( 200),
+        Positioned(
+            bottom: ScreenUtil().setHeight(200),
             left: ScreenUtil().setWidth(156),
             child: FlipDisappear(
                 key: GlobalKey(),
                 onDisappear: () {
                   setState(() {
                     taploginbutton = !taploginbutton;
-                    
                   });
                   print(taploginbutton);
                   Timer.periodic(Duration(milliseconds: 200), (timer) {
-                     if(speed==100.0){
+                    if (speed == 100.0) {
                       timer.cancel();
-                     }
-                      setState(() {
-                        if(speed<100.0){
-                          speed++;
-                        }
-                        print(speed);
-                      });
-                       if(speed==10.0){
-                        setState(() {
-                          listentext = "账号安全检测...";
-                        });}
-                     else if(speed==50.0){
-                        setState(() {
-                          listentext = "账号检测完毕！设备安全检测中...";
-                        });
-                      }else if(speed==100.0){
-                       setState(() {
-                          listentext = "设备安全检测完毕！即将跳转";
-                       });
-                        
-                        
-                        Timer(Duration(seconds: 2), () { 
-
-                          currentTo(name: HomePageId.home);
-                        });
+                    }
+                    setState(() {
+                      if (speed < 100.0) {
+                        speed++;
                       }
-                      
-                     });
+                      print(speed);
+                    });
+                    if (speed == 10.0) {
+                      setState(() {
+                        listentext = "账号安全检测...";
+                      });
+                    } else if (speed == 50.0) {
+                      setState(() {
+                        listentext = "账号检测完毕！设备安全检测中...";
+                      });
+                    } else if (speed == 100.0) {
+                      setState(() {
+                        listentext = "设备安全检测完毕！即将跳转";
+                      });
 
-                              },
+                      Timer(Duration(seconds: 2), () {
+                        currentTo(name: HomePageId.home);
+                      });
+                    }
+                  });
+                },
                 controller: animationController,
                 child: LoginBg(
                     child: Column(
@@ -236,8 +231,7 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
                                 splashColor: Colors.grey,
                                 onTap: () {
                                   login();
-                                //currentTo(name: HomePageId.home);
-                               
+                                  // currentTo(name: HomePageId.home);
                                 },
                               ),
                             ))
@@ -272,14 +266,12 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
                           )),
                     )
                   ],
-                ))
-                
-                )),
+                )))),
         AnimatedPositioned(
           duration: const Duration(seconds: 1),
           curve: Curves.easeInOut,
           right: taploginbutton
-              ? ScreenUtil().screenWidth / 2 -60
+              ? ScreenUtil().screenWidth / 2 - 60
               : ScreenUtil().setWidth(243),
           bottom: taploginbutton
               ? ScreenUtil().screenHeight / 2
@@ -288,38 +280,57 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-             taploginbutton
-              ?FadeInWidget(key: GlobalKey(), child: Image.asset("assets/img/safe_detection.webp",fit: BoxFit.contain,height: ScreenUtil().setSp(200),)):Icon(
-                Icons.star,
-                color: Color(0xffFFC54F),
-                size: ScreenUtil().setSp(60),
-              ),
-               taploginbutton
-              ?Text(
-                listentext,
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: ScreenUtil().setSp(18),
-                    fontWeight: FontWeight.bold,),textAlign: TextAlign.center,
-              ):Text(
-                "LOGO",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: ScreenUtil().setSp(56),
-                    fontWeight: FontWeight.bold),
-              )
+              taploginbutton
+                  ? FadeInWidget(
+                      key: GlobalKey(),
+                      child: Image.asset(
+                        "assets/img/safe_detection.webp",
+                        fit: BoxFit.contain,
+                        height: ScreenUtil().setSp(200),
+                      ))
+                  : Icon(
+                      Icons.star,
+                      color: Color(0xffFFC54F),
+                      size: ScreenUtil().setSp(60),
+                    ),
+              taploginbutton
+                  ? Text(
+                      listentext,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: ScreenUtil().setSp(18),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    )
+                  : Text(
+                      "LOGO",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: ScreenUtil().setSp(56),
+                          fontWeight: FontWeight.bold),
+                    )
             ],
           ),
         ),
-
-       Positioned(bottom: 0,child: taploginbutton? SizedBox(
-          width: ScreenUtil().screenWidth,
-          child: Slider(value:speed ,max: 100.0, thumbColor:Colors.amber[200],onChanged: (v){}),
-        ):Container()),
-
-        taploginbutton? Positioned.fill(child: Container(
-          color: Colors.transparent,
-        )):Container()
+        Positioned(
+            bottom: 0,
+            child: taploginbutton
+                ? SizedBox(
+                    width: ScreenUtil().screenWidth,
+                    child: Slider(
+                        value: speed,
+                        max: 100.0,
+                        thumbColor: Colors.amber[200],
+                        onChanged: (v) {}),
+                  )
+                : Container()),
+        taploginbutton
+            ? Positioned.fill(
+                child: Container(
+                color: Colors.transparent,
+              ))
+            : Container()
       ],
     ));
   }

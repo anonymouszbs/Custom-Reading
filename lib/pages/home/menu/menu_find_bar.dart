@@ -3,19 +3,25 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ceshi1/common/network/download.dart';
 import 'package:ceshi1/common/network/findbookApi.dart';
 import 'package:ceshi1/config/controller/user_state_controller.dart';
+import 'package:ceshi1/config/dataconfig/normal_string_config.dart';
 import 'package:ceshi1/pages/bookTree/routers/booktree_page_id.dart';
 import 'package:ceshi1/pages/home/common/selectdimension2.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import '../../../common/network/ApiServices.dart';
+import '../../../untils/sp_util.dart';
+import '../../../widgets/animation/animationposition.dart';
 import '../../../widgets/public/SliverGridDelegateWithFixedSize.dart';
 import '../../../widgets/public/loading1.dart';
 import '../../../widgets/public/textwidget.dart';
 import '../common/selectOptions.dart';
+import '../controller/leftbarcontroller.dart';
 
 class MenuFindBar extends StatefulWidget {
   const MenuFindBar({super.key});
@@ -24,16 +30,39 @@ class MenuFindBar extends StatefulWidget {
   State<MenuFindBar> createState() => _MenuFindBarState();
 }
 
-class _MenuFindBarState extends State<MenuFindBar> {
+class _MenuFindBarState extends State<MenuFindBar>
+    with SingleTickerProviderStateMixin {
   late PageController tabpageController = PageController(initialPage: 0);
   late PageController pageController = PageController(initialPage: 0);
+
+  late AnimationController addshelfanmitioncontroller;
+  bool isaddshelf = false;
   var toplevelListData = [], bookListData = [[], [], []];
   int currentindex = 0;
   LoaddingState state = LoaddingState.LOADDING;
+  var globalpostion = Offset(0, 0);
+
   @override
   void initState() {
     getTopLevel();
+    addshelfanmitioncontroller =
+        AnimationController(vsync: this, duration: Duration(seconds: 2));
+    addshelfanmitioncontroller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          isaddshelf = false;
+          BotToast.cleanAll();
+        });
+      }
+    });
+
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    addshelfanmitioncontroller.dispose();
+    super.dispose();
   }
 
   //学习人数降序
@@ -185,7 +214,9 @@ class _MenuFindBarState extends State<MenuFindBar> {
           return Material(
               color: Colors.transparent,
               child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    currentToPage(BookTreePageId.bookdetails);
+                  },
                   child: Container(
                     padding: const EdgeInsets.only(
                         left: 10, right: 10, top: 0, bottom: 0),
@@ -198,15 +229,16 @@ class _MenuFindBarState extends State<MenuFindBar> {
                           child: Row(
                             children: [
                               Expanded(
-                                flex: 4,
-                                child:SizedBox(
-                                  width: ScreenUtil().setWidth(121),
-                                  height: ScreenUtil().setHeight(161),
-                                  child:  Image.network(
-                                  ApiService.AppUrl + data[index]["Thumbnail"],
-                                  fit: BoxFit.fill,
-                                ),)
-                              ),
+                                  flex: 4,
+                                  child: SizedBox(
+                                    width: ScreenUtil().setWidth(121),
+                                    height: ScreenUtil().setHeight(161),
+                                    child: Image.network(
+                                      ApiService.AppUrl +
+                                          data[index]["Thumbnail"],
+                                      fit: BoxFit.fill,
+                                    ),
+                                  )),
                               SizedBox(
                                 width: ScreenUtil().setWidth(20),
                               ),
@@ -259,35 +291,94 @@ class _MenuFindBarState extends State<MenuFindBar> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                TextButton.icon(
-                                    onPressed: () {},
-                                    icon: Image.asset(
-                                      "assets/img/download.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                    label: Text(
-                                      "下载至本地",
-                                      style: TextStyle(color: Colors.white),
-                                    )),
-                                TextButton.icon(
-                                    onPressed: () async {
-                                      //添加至学习计划
+                                GestureDetector(
+                                    onTapUp: (postidetails) {
+                                       SpUtil.containsKey(NormalFlagIdConfig.bookDownload+data[index]
+                                                        ["ietm_id"].toString())==true?BotToast.showText(text: "已下载"): BotToast.showWidget(
+                                          toastBuilder: (cancelFunc) {
+                                        return Stack(
+                                          children: [
+                                            AnimatedMoveToPosition(
+                                              moveWidget: Image.asset(
+                                                "assets/img/download.png",
+                                                height: 50,
+                                                fit: BoxFit.fill,
+                                              ),
+                                              endPosition:
+                                                  const Offset(950, 10),
+                                              startPosition:
+                                                  postidetails.globalPosition,
+                                              onRemove: () {
+                                                DonwloadSource.current.donwload(
+                                                    ietmid: data[index]
+                                                        ["ietm_id"]);
+                                                cancelFunc();
+                                              },
+                                            )
+                                          ],
+                                        );
+                                      });
+                                     
+                                    },
+                                    child: TextButton.icon(
+                                        onPressed: null,
+                                        icon: Image.asset(
+                                          "assets/img/download.png",
+                                          fit: BoxFit.cover,
+                                        ),
+                                        label: Text(
+                                          SpUtil.containsKey(NormalFlagIdConfig.bookDownload+data[index]
+                                                        ["ietm_id"].toString())==true?"已下载":"下载至本地",
+                                          style: TextStyle(color: Colors.white),
+                                        ))),
+                                GestureDetector(
+                                    onTapUp: (postidetails) async {
+                                      BotToast.showWidget(
+                                          toastBuilder: (cancelFunc) {
+                                        return Stack(
+                                          children: [
+                                            AnimatedMoveToPosition(
+                                              moveWidget: Image.asset(
+                                                "assets/img/add.png",
+                                                height: 50,
+                                                fit: BoxFit.fill,
+                                              ),
+                                              endPosition:
+                                                  const Offset(100, 262),
+                                              startPosition:
+                                                  postidetails.globalPosition,
+                                              onRemove: () {
+                                                LeftBarCtr.current.subint++;
+                                                cancelFunc();
+                                              },
+                                            )
+                                          ],
+                                        );
+                                      });
+
                                       await ApiService.addBookShelf(
                                           UserID: UserStateController
                                               .current.user.id,
                                           IETM_ID: data[index]["ietm_id"]);
                                       setState(() {
-                                          data[index]["Is_Plan"]=1;
-                                        });  
+                                        data[index]["Is_Plan"] = 1;
+                                      });
                                     },
-                                    icon: Image.asset(
-                                      data[index]["Is_Plan"]==0?"assets/img/add.png":"assets/img/added.png",
-                                      fit: BoxFit.cover,
-                                    ),
-                                    label: Text(
-                                      data[index]["Is_Plan"]==0?"学习计划":"已加入计划",
-                                      style: const TextStyle(color: Colors.white),
-                                    ))
+                                    child: TextButton.icon(
+                                        onPressed: null,
+                                        icon: Image.asset(
+                                          data[index]["Is_Plan"] == 0
+                                              ? "assets/img/add.png"
+                                              : "assets/img/added.png",
+                                          fit: BoxFit.cover,
+                                        ),
+                                        label: Text(
+                                          data[index]["Is_Plan"] == 0
+                                              ? "学习计划"
+                                              : "已加入计划",
+                                          style: const TextStyle(
+                                              color: Colors.white),
+                                        )))
                               ],
                             ),
                           ),
@@ -474,6 +565,206 @@ class _MenuFindBarState extends State<MenuFindBar> {
                 ],
               ),
             )),
+        Positioned(
+            left: ScreenUtil().setWidth(1050),
+            top: ScreenUtil().setHeight(0),
+            child: GestureDetector(
+              onTapUp: (details) {
+                BotToast.showWidget(
+                  toastBuilder: (cancelFunc) {
+                    return Material(
+                      color: const Color.fromRGBO(0, 0, 0, 0.50),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                              top: ScreenUtil().setHeight(239),
+                              left: ScreenUtil().setWidth(294),
+                              child: Container(
+                                padding: EdgeInsets.only(
+                                    left: ScreenUtil().setWidth(56),
+                                    top: ScreenUtil().setHeight(35),
+                                    right: ScreenUtil().setWidth(56)),
+                                width: ScreenUtil().setWidth(778),
+                                height: ScreenUtil().setHeight(546),
+                                decoration: const BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                          blurRadius: 32,
+                                          color: Color.fromRGBO(
+                                              255, 255, 255, 0.20))
+                                    ],
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Color.fromRGBO(0, 0, 0, 0.05),
+                                        Color.fromRGBO(0, 0, 0, 0.22)
+                                      ],
+                                    ),
+                                    image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/img/download_bg.png",
+                                        ),
+                                        fit: BoxFit.fill)),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () => cancelFunc(),
+                                          child: SizedBox(
+                                            width: ScreenUtil().setWidth(100),
+                                            height: ScreenUtil().setHeight(40),
+                                            child: Image.asset(
+                                              "assets/img/downlaod_btn_back.png",
+                                              fit: BoxFit.fill,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: ScreenUtil().setWidth(174),
+                                        ),
+                                        Container(
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            "下载队列",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize:
+                                                    ScreenUtil().setSp(28)),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: ScreenUtil().setHeight(49),
+                                    ),
+                                    Expanded(
+                                        child: Obx(
+                                      () => ListView.separated(
+                                        itemCount: DonwloadSource.current.taskList.length,
+                                        itemBuilder: (context, index) {
+                                          return Obx(() =>  Container(
+                                            alignment: Alignment.center,
+                                            width: ScreenUtil().setWidth(666),
+                                            height: ScreenUtil().setHeight(60),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    SizedBox(
+                                                        width: ScreenUtil()
+                                                            .setWidth(250),
+                                                        child: Text(
+                                                          DonwloadSource.current.taskList[index]["ietm_name"],
+                                                          maxLines: 1,
+                                                          style: TextStyle(
+                                                              color: const Color
+                                                                  .fromRGBO(
+                                                                255,
+                                                                255,
+                                                                255,
+                                                                1,
+                                                              ),
+                                                              fontSize:
+                                                                  ScreenUtil()
+                                                                      .setSp(
+                                                                          20)),
+                                                        )),
+                                                    SizedBox(
+                                                      width: ScreenUtil()
+                                                          .setWidth(180),
+                                                      child: Obx(() =>Text(
+                                                        "${(DonwloadSource.current.taskList[index]["progress"]*100)}%",
+                                                        style: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize:
+                                                                ScreenUtil()
+                                                                    .setSp(18)),
+                                                      )),
+                                                    ),
+                                                   Row(
+                                                    children: [
+                                                      Text(
+                                                        DonwloadSource.current.taskList[index]["isdownload"]==true?"已完成":DonwloadSource.current.taskList[index]["ispause"]==true?"已暂停":"正在下载",
+                                                        style: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize:
+                                                                ScreenUtil()
+                                                                    .setSp(18)),
+                                                      ),
+                                                       GestureDetector(
+                                                      onTap: () {},
+                                                      child: Icon(
+                                                        DonwloadSource.current.taskList[index]["ispause"]==true?Icons.play_arrow:Icons.pause,
+                                                        color: Colors.white,
+                                                        size: ScreenUtil()
+                                                            .setHeight(28),
+                                                      ),
+                                                    ),
+                                                    ],
+                                                   )
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height:
+                                                      ScreenUtil().setHeight(5),
+                                                ),
+                                                Container(
+                                                  width: ScreenUtil()
+                                                      .setWidth(666),
+                                                  height: ScreenUtil()
+                                                      .setHeight(18),
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                        width: 1,
+                                                        color: Color.fromRGBO(
+                                                            153, 153, 153, 1)),
+                                                    borderRadius:
+                                                        const BorderRadius.all(
+                                                            Radius.circular(8)),
+                                                  ),
+                                                  child:
+                                                      LinearProgressIndicator(
+                                                    value:DonwloadSource.current.taskList[index]["progress"],
+                                                    backgroundColor:
+                                                        Color.fromRGBO(255, 255,
+                                                            255, 0.10),
+                                                    valueColor:
+                                                        AlwaysStoppedAnimation<
+                                                                Color>(
+                                                            Color(0xFFFFBB1A)),
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ));
+                                        },
+                                        separatorBuilder:
+                                            (BuildContext context, int index) =>
+                                                Divider(
+                                          height: ScreenUtil().setWidth(26),
+                                        ),
+                                      ),
+                                    ))
+                                  ],
+                                ),
+                              ))
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+              child: Image.asset(
+                "assets/img/download.png",
+                height: ScreenUtil().setSp(50),
+                fit: BoxFit.fill,
+              ),
+            ))
       ],
     );
   }
