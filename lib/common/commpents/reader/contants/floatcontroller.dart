@@ -5,11 +5,16 @@ import 'dart:typed_data';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
 import 'package:ceshi1/common/commpents/reader/reader_view.dart';
+import 'package:ceshi1/config/dataconfig/normal_string_config.dart';
+import 'package:ceshi1/public/public_class_bean.dart';
+import 'package:ceshi1/public/public_function.dart';
+import 'package:ceshi1/untils/sp_util.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:string_similarity/string_similarity.dart';
 
 enum TtsState { playing, stopped, paused, continued }
 
@@ -21,14 +26,61 @@ class FloatStyle {
 }
 
 class FloatController extends GetxController {
-
-  
   static FloatController get current => Get.find<FloatController>();
   Rx<FloatStyle> floatStyle = FloatStyle().obs;
   Rx<bool> isshow = false.obs;
   Rx<TtsState> ttsState = TtsState.stopped.obs;
   FlutterTts flutterTts = FlutterTts();
   RxInt time = 3000.obs;
+  RxBool isShowReadView = false.obs;
+  RxDouble progress = 0.0.obs;
+
+  late InAppWebViewController webViewController;
+
+  //这里用来判断用户是否点了跳转目录
+
+  RxBool onToc = false.obs;
+
+  String readtextactive = "";
+  String readtext = "";
+  //记录原来位置 回到原来位置时再ontac=tfalse 再记录进度
+  String currentlocation = "";
+  backToc() {}
+
+  ///保存用户进度
+  ///
+  saveBooksourcesProgress({id, cfi, required double progress}) {
+    print(progress);
+    final sourcesid = getsourceid(id: id);
+
+    if (onToc.value == false) {
+      if (SpUtil.containsKey(sourcesid) == false) {
+        saveSource(id: id, map: {
+              "id": id,
+              "progress": progress,
+              "cfi": [cfi.toString()]
+            });
+        
+      } else {
+        SourceMap sourceMap = getsourceidMap(id: id);
+        List<String> listcfi = sourceMap.cfi;
+       
+        if (progress >=
+            sourceMap.progress) {
+         
+          if (sourceMap.cfi.contains(cfi.toString()) == false) {
+            listcfi.add(cfi);
+           saveSource(id: id, map: {
+                "progress":progress,
+                "cfi":listcfi
+            });
+           
+          }
+        }
+      }
+    }
+  }
+
   Future<String> ocr() async {
     Directory tempDir = await getTemporaryDirectory();
     Uint8List? bytes =
@@ -38,27 +90,40 @@ class FloatController extends GetxController {
     File file = File('$dir/test.webp');
     await file.writeAsBytes(bytes!);
     final url = file.path;
-    var ocrText = await FlutterTesseractOcr.extractText(url,
-        language: "chi_sim",
-        args: {
-          "psm": "2",
-          "preserve_interword_spaces": "1",
-        });
+    var ocrText =
+        await FlutterTesseractOcr.extractText(url, language: "chi_sim", args: {
+      "psm": "2",
+      "preserve_interword_spaces": "1",
+    });
 
     return ocrText.replaceAll(RegExp(r" "), "");
   }
 
+  removeSimilarParagraphs(String text1, String text2) {
+    // Split text into paragraphs
+    String replacetxt = "";
+    List<String> paragraphs1 = text1.split('\n');
+    List<String> paragraphs2 = text2.split('\n');
+    for (var i = 0; i < paragraphs1.length; i++) {
+      if (paragraphs2[0].contains(paragraphs1[i].toString().trim())) {
+        replacetxt = paragraphs1[i].toString().trim();
+        break;
+      }
+    }
+    if (replacetxt == "") {
+      return text2;
+    } else {
+      return text2.replaceFirst(replacetxt, "");
+    }
+  }
+
   startPlay() async {
     var result = 0;
-    var readText;
-    readText = await ocr();
-    if(readText==""){
-        readText = "翻页";
-    }
 
-
-    result = await FloatController.current.speak(readText);
-
+    print(removeSimilarParagraphs(readtextactive, readtext));
+    result = await FloatController.current
+        .speak(removeSimilarParagraphs(readtextactive, readtext));
+    readtextactive = readtext;
   }
 
   Future speak(text) async {
@@ -89,7 +154,7 @@ class FloatController extends GetxController {
   Future stop() async {
     var result = await flutterTts.stop();
     if (result == 1) {
-       ttsState.value = TtsState.stopped;
+      ttsState.value = TtsState.stopped;
     }
   }
 
@@ -103,8 +168,7 @@ class FloatController extends GetxController {
     _getDefaultVoice();
 
     flutterTts.setStartHandler(() {
-       ttsState.value = TtsState.playing;
-      
+      ttsState.value = TtsState.playing;
     });
 
     flutterTts.setInitHandler(() {
@@ -112,30 +176,27 @@ class FloatController extends GetxController {
     });
 
     flutterTts.setCompletionHandler(() {
-       ttsState.value = TtsState.stopped;
+      ttsState.value = TtsState.stopped;
       ReaderThemeC.current.selectContextMenu.nextpage();
-      Timer(const Duration(milliseconds: 1000),(){
+      Timer(const Duration(milliseconds: 1000), () {
         startPlay();
       });
-      
-      
     });
 
     flutterTts.setCancelHandler(() {
-       ttsState.value = TtsState.stopped;
-      
+      ttsState.value = TtsState.stopped;
     });
 
     flutterTts.setPauseHandler(() {
-       ttsState.value = TtsState.paused;
+      ttsState.value = TtsState.paused;
     });
 
     flutterTts.setContinueHandler(() {
-       ttsState.value = TtsState.continued;
+      ttsState.value = TtsState.continued;
     });
 
     flutterTts.setErrorHandler((msg) {
-       ttsState.value = TtsState.stopped;
+      ttsState.value = TtsState.stopped;
     });
   }
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/network/ApiServices.dart';
@@ -11,8 +12,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import '../../common/network/download.dart';
 import '../../common/network/findbookApi.dart';
 import '../../config/controller/user_state_controller.dart';
+import '../../config/dataconfig/normal_string_config.dart';
+import '../../untils/getx_untils.dart';
+import '../../untils/sp_util.dart';
+import 'routers/booktree_page_id.dart';
 
 class BookTreePage extends StatefulWidget {
   const BookTreePage({super.key});
@@ -230,7 +236,245 @@ class _BookTreePageState extends State<BookTreePage> {
                                 return Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+
+                                      if (SpUtil.containsKey(NormalFlagIdConfig.bookDownload +
+                                bookListData[index]["ietm_id"].toString()) ==
+                            true) {
+                          currentToPage(BookTreePageId.bookdetails, arguments: [
+                            bookListData[index]["ietm_id"],
+                            ApiService.AppUrl + bookListData[index]["Thumbnail"]
+                          ]);
+                        } else {
+                          DonwloadSource.current.donwload(
+                              currentIndex: 0,
+                              index: index,
+                              ietmid: bookListData[index]["ietm_id"]);
+
+                          BotToast.showWidget(
+                            toastBuilder: (cancelFunc) {
+                              return Material(
+                                color: const Color.fromRGBO(0, 0, 0, 0.50),
+                                child: Stack(
+                                  children: [
+                                    Positioned(
+                                        top: ScreenUtil().setHeight(239),
+                                        left: ScreenUtil().setWidth(294),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                              sigmaX: 10, sigmaY: 10),
+                                          child: Container(
+                                            padding: EdgeInsets.only(
+                                                left: ScreenUtil().setWidth(56),
+                                                top: ScreenUtil().setHeight(35),
+                                                right:
+                                                    ScreenUtil().setWidth(56)),
+                                            width: ScreenUtil().setWidth(778),
+                                            height: ScreenUtil().setHeight(546),
+                                            decoration: const BoxDecoration(
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                      blurRadius: 32,
+                                                      color: Color.fromRGBO(
+                                                          255, 255, 255, 0.20))
+                                                ],
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topCenter,
+                                                  end: Alignment.bottomCenter,
+                                                  colors: [
+                                                    Color.fromRGBO(
+                                                        0, 0, 0, 0.05),
+                                                    Color.fromRGBO(
+                                                        0, 0, 0, 0.22)
+                                                  ],
+                                                ),
+                                                image: DecorationImage(
+                                                    colorFilter:
+                                                        ColorFilter.mode(
+                                                            Color.fromRGBO(255,
+                                                                255, 255, 0),
+                                                            BlendMode
+                                                                .colorBurn),
+                                                    image: AssetImage(
+                                                      "assets/img/download_bg.png",
+                                                    ),
+                                                    fit: BoxFit.fill)),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    GestureDetector(
+                                                      onTap: () => cancelFunc(),
+                                                      child: SizedBox(
+                                                        width: ScreenUtil()
+                                                            .setWidth(100),
+                                                        height: ScreenUtil()
+                                                            .setHeight(40),
+                                                        child: Image.asset(
+                                                          "assets/img/downlaod_btn_back.png",
+                                                          fit: BoxFit.fill,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: ScreenUtil()
+                                                          .setWidth(174),
+                                                    ),
+                                                    Container(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      child: Text(
+                                                        "下载队列",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize:
+                                                                ScreenUtil()
+                                                                    .setSp(28)),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                SizedBox(
+                                                  height: ScreenUtil()
+                                                      .setHeight(49),
+                                                ),
+                                                Expanded(
+                                                    child: Obx(
+                                                  () => ListView.separated(
+                                                    itemCount: DonwloadSource
+                                                        .current
+                                                        .taskList
+                                                        .length,
+                                                    itemBuilder:
+                                                        (context, index) {
+                                                      return Obx(
+                                                          () => Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .center,
+                                                                width: ScreenUtil()
+                                                                    .setWidth(
+                                                                        666),
+                                                                height:
+                                                                    ScreenUtil()
+                                                                        .setHeight(
+                                                                            60),
+                                                                child: Column(
+                                                                  children: [
+                                                                    Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .spaceBetween,
+                                                                      children: [
+                                                                        SizedBox(
+                                                                            width:
+                                                                                ScreenUtil().setWidth(250),
+                                                                            child: Text(
+                                                                              DonwloadSource.current.taskList[index]["ietm_name"],
+                                                                              maxLines: 1,
+                                                                              style: TextStyle(
+                                                                                  color: const Color.fromRGBO(
+                                                                                    255,
+                                                                                    255,
+                                                                                    255,
+                                                                                    1,
+                                                                                  ),
+                                                                                  fontSize: ScreenUtil().setSp(20)),
+                                                                            )),
+                                                                        SizedBox(
+                                                                          width:
+                                                                              ScreenUtil().setWidth(180),
+                                                                          child: Obx(() =>
+                                                                              Text(
+                                                                                "${(DonwloadSource.current.taskList[index]["progress"] * 100)}%",
+                                                                                style: TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(18)),
+                                                                              )),
+                                                                        ),
+                                                                        Row(
+                                                                          children: [
+                                                                            Text(
+                                                                              DonwloadSource.current.taskList[index]["isdownload"] == true
+                                                                                  ? "已完成"
+                                                                                  : DonwloadSource.current.taskList[index]["ispause"] == true
+                                                                                      ? "已暂停"
+                                                                                      : "正在下载",
+                                                                              style: TextStyle(color: Colors.grey, fontSize: ScreenUtil().setSp(18)),
+                                                                            ),
+                                                                            GestureDetector(
+                                                                              onTap: () {},
+                                                                              child: Icon(
+                                                                                DonwloadSource.current.taskList[index]["ispause"] == true ? Icons.play_arrow : Icons.pause,
+                                                                                color: Colors.white,
+                                                                                size: ScreenUtil().setHeight(28),
+                                                                              ),
+                                                                            ),
+                                                                          ],
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: ScreenUtil()
+                                                                          .setHeight(
+                                                                              5),
+                                                                    ),
+                                                                    Container(
+                                                                      width: ScreenUtil()
+                                                                          .setWidth(
+                                                                              666),
+                                                                      height: ScreenUtil()
+                                                                          .setHeight(
+                                                                              18),
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        border: Border.all(
+                                                                            width:
+                                                                                1,
+                                                                            color: Color.fromRGBO(
+                                                                                153,
+                                                                                153,
+                                                                                153,
+                                                                                1)),
+                                                                        borderRadius:
+                                                                            const BorderRadius.all(Radius.circular(8)),
+                                                                      ),
+                                                                      child:
+                                                                          LinearProgressIndicator(
+                                                                        value: DonwloadSource
+                                                                            .current
+                                                                            .taskList[index]["progress"],
+                                                                        backgroundColor: Color.fromRGBO(
+                                                                            255,
+                                                                            255,
+                                                                            255,
+                                                                            0.10),
+                                                                        valueColor:
+                                                                            AlwaysStoppedAnimation<Color>(Color(0xFFFFBB1A)),
+                                                                      ),
+                                                                    )
+                                                                  ],
+                                                                ),
+                                                              ));
+                                                    },
+                                                    separatorBuilder:
+                                                        (BuildContext context,
+                                                                int index) =>
+                                                            Divider(
+                                                      height: ScreenUtil()
+                                                          .setWidth(26),
+                                                    ),
+                                                  ),
+                                                ))
+                                              ],
+                                            ),
+                                          ),
+                                        ))
+                                  ],
+                                ),
+                              );
+                            },
+                          );
+                        }
+                                    },
                                     child: Container(
                                       decoration: const BoxDecoration(
                                         gradient: LinearGradient(

@@ -230,8 +230,8 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
                               child: InkWell(
                                 splashColor: Colors.grey,
                                 onTap: () {
-                                  login();
-                                  // currentTo(name: HomePageId.home);
+                                //  login();
+                                   currentTo(name: HomePageId.home);
                                 },
                               ),
                             ))

@@ -144,7 +144,7 @@ class ReaderThemeC extends GetxController{
   }
   tocScorllTo(int i){
    Timer(Duration(milliseconds: 500),(){
-     final itemHeight = tocScrollController.position.maxScrollExtent / i;
+     final itemHeight = (tocScrollController.position.maxScrollExtent / i)+20;
     tocScrollController.animateTo(itemHeight*currentindex.value, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
    })
 ;  }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 
 import '../../../widgets/animation/slideanimation.dart';
 import '../booktreeSearch.dart';
+import '../video copy/video.dart';
 import 'booktree_page_id.dart';
 
 
@@ -11,6 +12,7 @@ class BookTreePages{
   BookTreePages._();
   static final routers = {
     GetPage(name: BookTreePageId.booktree,page: ()=>const AnimationsTB(child:  BookTreePage())),
-    GetPage(name: BookTreePageId.bookdetails,page: ()=>const AnimationsTB(child:  BookDetailsPage())),
+    GetPage(name: BookTreePageId.bookdetails,page: ()=>const AnimationsTB(child:   BookDetailsPage())),
+    GetPage(name: BookTreePageId.video,page: ()=> const VideoPlayScreen())
   };
 }

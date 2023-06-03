@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:ui';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/network/download.dart';
@@ -10,11 +11,14 @@ import 'package:ceshi1/config/dataconfig/normal_string_config.dart';
 import 'package:ceshi1/pages/bookTree/routers/booktree_page_id.dart';
 import 'package:ceshi1/pages/home/common/selectdimension2.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
+import 'package:ceshi1/widgets/animation/stepwidget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../../common/network/ApiServices.dart';
+import '../../../public/public_class_bean.dart';
+import '../../../public/public_function.dart';
 import '../../../untils/sp_util.dart';
 import '../../../widgets/animation/animationposition.dart';
 import '../../../widgets/public/SliverGridDelegateWithFixedSize.dart';
@@ -37,7 +41,7 @@ class _MenuFindBarState extends State<MenuFindBar>
 
   late AnimationController addshelfanmitioncontroller;
   bool isaddshelf = false;
-  var toplevelListData = [], bookListData = [[], [], []];
+  var toplevelListData = [];
   int currentindex = 0;
   LoaddingState state = LoaddingState.LOADDING;
   var globalpostion = Offset(0, 0);
@@ -68,14 +72,14 @@ class _MenuFindBarState extends State<MenuFindBar>
   //学习人数降序
   orderByitemidDescBookListData() {
     setState(() {
-      bookListData[currentindex]
+      DonwloadSource.current.bookListData[currentindex]
           .sort((a, b) => b['ietm_id'].compareTo(a['ietm_id']));
     });
   }
 
   orderBylearnersAscBookListData() {
     setState(() {
-      bookListData[currentindex]
+      DonwloadSource.current.bookListData[currentindex]
           .sort((a, b) => b['learners'].compareTo(a['learners']));
     });
   }
@@ -118,7 +122,7 @@ class _MenuFindBarState extends State<MenuFindBar>
           state = LoaddingState.ERROR;
         }
         setState(() {
-          bookListData[currentindex] = jsondata["data"];
+          DonwloadSource.current.bookListData[currentindex] = jsondata["data"];
         });
         BotToast.showText(text: "刷新成功");
       } else {
@@ -130,7 +134,7 @@ class _MenuFindBarState extends State<MenuFindBar>
 //根据顶级分类获取接口
   geTopBookDataList({id, index}) async {
     setState(() {
-      bookListData[index].clear();
+      DonwloadSource.current.bookListData[index].clear();
     });
     Timer(const Duration(milliseconds: 1000), () async {
       var data = {
@@ -145,7 +149,7 @@ class _MenuFindBarState extends State<MenuFindBar>
           state = LoaddingState.ERROR;
         }
         setState(() {
-          bookListData[index] = jsondata["data"];
+          DonwloadSource.current.bookListData[index] = jsondata["data"];
         });
       } else {
         BotToast.showText(text: "数据加载失败");
@@ -177,7 +181,8 @@ class _MenuFindBarState extends State<MenuFindBar>
 
                       setState(() {
                         currentindex = e;
-                        bookListData[currentindex].clear();
+                        DonwloadSource.current.bookListData[currentindex]
+                            .clear();
                         state = LoaddingState.LOADDING;
                       });
                       geTopBookDataList(
@@ -211,11 +216,37 @@ class _MenuFindBarState extends State<MenuFindBar>
           mainAxisSpacing: 5.0,
         ),
         itemBuilder: (c, index) {
+          BookInfoMap? map;
+          bool isexit = false;
+          if (findKey(id: getBookInfoid(id: data[index]["ietm_id"])) == true) {
+            isexit = true;
+            map = getBookInfoidMap(id: data[index]["ietm_id"]);
+          }
+
           return Material(
               color: Colors.transparent,
               child: InkWell(
                   onTap: () {
-                    currentToPage(BookTreePageId.bookdetails);
+                    //
+
+//                     var bookinfoData = getBookInfoidMap(id: data[index]["ietm_id"]);
+//  var  bookDownloadList = getBookDownloadList(id: data[index]["ietm_id"]);
+
+// print(bookinfoData.toJson().toString()+"10");
+// print(bookDownloadList.toString()+"10");
+
+// SourceMap sourceMap = getsourceidMap(id:11);
+
+// print(sourceMap.toJson().toString());
+                    findKey(
+                                id: getBookInfoid(
+                                    id: data[index]["ietm_id"])) ==
+                            true
+                        ? currentToPage(BookTreePageId.bookdetails, arguments: [
+                            data[index]["ietm_id"],
+                            ApiService.AppUrl + data[index]["Thumbnail"]
+                          ])
+                        : BotToast.showText(text: "还未下载，请先下载本资源");
                   },
                   child: Container(
                     padding: const EdgeInsets.only(
@@ -263,11 +294,21 @@ class _MenuFindBarState extends State<MenuFindBar>
                                           color: Colors.grey,
                                           fontsize: ScreenUtil().setSp(22),
                                           bold: FontWeight.normal),
-                                      Ykttext(
-                                          text: "我的进度:10%",
-                                          color: Colors.grey,
-                                          fontsize: ScreenUtil().setSp(22),
-                                          bold: FontWeight.normal),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            "我的进度 ",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize:
+                                                    ScreenUtil().setSp(24)),
+                                          ),
+                                          StepWidget(
+                                              progress: isexit
+                                                  ? map!.learningRate
+                                                  : 0)
+                                        ],
+                                      )
                                     ],
                                   ))
                             ],
@@ -293,32 +334,41 @@ class _MenuFindBarState extends State<MenuFindBar>
                               children: [
                                 GestureDetector(
                                     onTapUp: (postidetails) {
-                                       SpUtil.containsKey(NormalFlagIdConfig.bookDownload+data[index]
-                                                        ["ietm_id"].toString())==true?BotToast.showText(text: "已下载"): BotToast.showWidget(
-                                          toastBuilder: (cancelFunc) {
-                                        return Stack(
-                                          children: [
-                                            AnimatedMoveToPosition(
-                                              moveWidget: Image.asset(
-                                                "assets/img/download.png",
-                                                height: 50,
-                                                fit: BoxFit.fill,
-                                              ),
-                                              endPosition:
-                                                  const Offset(950, 10),
-                                              startPosition:
-                                                  postidetails.globalPosition,
-                                              onRemove: () {
-                                                DonwloadSource.current.donwload(
-                                                    ietmid: data[index]
-                                                        ["ietm_id"]);
-                                                cancelFunc();
-                                              },
-                                            )
-                                          ],
-                                        );
-                                      });
-                                     
+                                      findKey(
+                                                  id: getBookDownloadid(
+                                                      id: data[index]
+                                                          ["ietm_id"])) ==
+                                              true
+                                          ? BotToast.showText(text: "已下载")
+                                          : BotToast.showWidget(
+                                              toastBuilder: (cancelFunc) {
+                                              return Stack(
+                                                children: [
+                                                  AnimatedMoveToPosition(
+                                                    moveWidget: Image.asset(
+                                                      "assets/img/download.png",
+                                                      height: 50,
+                                                      fit: BoxFit.fill,
+                                                    ),
+                                                    endPosition:
+                                                        const Offset(950, 10),
+                                                    startPosition: postidetails
+                                                        .globalPosition,
+                                                    onRemove: () {
+                                                      DonwloadSource.current
+                                                          .donwload(
+                                                              currentIndex:
+                                                                  currentindex,
+                                                              index: index,
+                                                              ietmid: data[
+                                                                      index]
+                                                                  ["ietm_id"]);
+                                                      cancelFunc();
+                                                    },
+                                                  )
+                                                ],
+                                              );
+                                            });
                                     },
                                     child: TextButton.icon(
                                         onPressed: null,
@@ -327,8 +377,15 @@ class _MenuFindBarState extends State<MenuFindBar>
                                           fit: BoxFit.cover,
                                         ),
                                         label: Text(
-                                          SpUtil.containsKey(NormalFlagIdConfig.bookDownload+data[index]
-                                                        ["ietm_id"].toString())==true?"已下载":"下载至本地",
+                                          findKey(
+                                                      id: getBookDownloadid(
+                                                          id: data[index]
+                                                              ["ietm_id"])) ==
+                                                  true
+                                              ? "已下载"
+                                              : data[index]["download"] == true
+                                                  ? "已下载"
+                                                  : "下载至本地",
                                           style: TextStyle(color: Colors.white),
                                         ))),
                                 GestureDetector(
@@ -515,7 +572,8 @@ class _MenuFindBarState extends State<MenuFindBar>
                           ondimension2: (Dimension2) {
                             setState(() {
                               state = LoaddingState.LOADDING;
-                              bookListData[currentindex].clear();
+                              DonwloadSource.current.bookListData[currentindex]
+                                  .clear();
                             });
 
                             getSecondAryBooklist(Dimension2);
@@ -547,21 +605,21 @@ class _MenuFindBarState extends State<MenuFindBar>
                 physics: const NeverScrollableScrollPhysics(),
                 controller: pageController,
                 children: [
-                  bookListData[0].length == 0
+                  Obx(() => DonwloadSource.current.bookListData[0].length == 0
                       ? Loading1(
                           state: state,
                         )
-                      : datalist(data: bookListData[0]),
-                  bookListData[1].length == 0
+                      : datalist(data: DonwloadSource.current.bookListData[0])),
+                  Obx(() => DonwloadSource.current.bookListData[1].length == 0
                       ? Loading1(
                           state: state,
                         )
-                      : datalist(data: bookListData[1]),
-                  bookListData[2].length == 0
+                      : datalist(data: DonwloadSource.current.bookListData[1])),
+                  Obx(() => DonwloadSource.current.bookListData[2].length == 0
                       ? Loading1(
                           state: state,
                         )
-                      : datalist(data: bookListData[2]),
+                      : datalist(data: DonwloadSource.current.bookListData[2])),
                 ],
               ),
             )),
@@ -579,178 +637,230 @@ class _MenuFindBarState extends State<MenuFindBar>
                           Positioned(
                               top: ScreenUtil().setHeight(239),
                               left: ScreenUtil().setWidth(294),
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    left: ScreenUtil().setWidth(56),
-                                    top: ScreenUtil().setHeight(35),
-                                    right: ScreenUtil().setWidth(56)),
-                                width: ScreenUtil().setWidth(778),
-                                height: ScreenUtil().setHeight(546),
-                                decoration: const BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          blurRadius: 32,
-                                          color: Color.fromRGBO(
-                                              255, 255, 255, 0.20))
-                                    ],
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Color.fromRGBO(0, 0, 0, 0.05),
-                                        Color.fromRGBO(0, 0, 0, 0.22)
+                              child: BackdropFilter(
+                                filter:
+                                    ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      left: ScreenUtil().setWidth(56),
+                                      top: ScreenUtil().setHeight(35),
+                                      right: ScreenUtil().setWidth(56)),
+                                  width: ScreenUtil().setWidth(778),
+                                  height: ScreenUtil().setHeight(546),
+                                  decoration: const BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 32,
+                                            color: Color.fromRGBO(
+                                                255, 255, 255, 0.20))
                                       ],
-                                    ),
-                                    image: DecorationImage(
-                                        image: AssetImage(
-                                          "assets/img/download_bg.png",
-                                        ),
-                                        fit: BoxFit.fill)),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        GestureDetector(
-                                          onTap: () => cancelFunc(),
-                                          child: SizedBox(
-                                            width: ScreenUtil().setWidth(100),
-                                            height: ScreenUtil().setHeight(40),
-                                            child: Image.asset(
-                                              "assets/img/downlaod_btn_back.png",
-                                              fit: BoxFit.fill,
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Color.fromRGBO(0, 0, 0, 0.05),
+                                          Color.fromRGBO(0, 0, 0, 0.22)
+                                        ],
+                                      ),
+                                      image: DecorationImage(
+                                          colorFilter: ColorFilter.mode(
+                                              Color.fromRGBO(255, 255, 255, 0),
+                                              BlendMode.colorBurn),
+                                          image: AssetImage(
+                                            "assets/img/download_bg.png",
+                                          ),
+                                          fit: BoxFit.fill)),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () => cancelFunc(),
+                                            child: SizedBox(
+                                              width: ScreenUtil().setWidth(100),
+                                              height:
+                                                  ScreenUtil().setHeight(40),
+                                              child: Image.asset(
+                                                "assets/img/downlaod_btn_back.png",
+                                                fit: BoxFit.fill,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(
-                                          width: ScreenUtil().setWidth(174),
-                                        ),
-                                        Container(
-                                          alignment: Alignment.center,
-                                          child: Text(
-                                            "下载队列",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize:
-                                                    ScreenUtil().setSp(28)),
+                                          SizedBox(
+                                            width: ScreenUtil().setWidth(174),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: ScreenUtil().setHeight(49),
-                                    ),
-                                    Expanded(
-                                        child: Obx(
-                                      () => ListView.separated(
-                                        itemCount: DonwloadSource.current.taskList.length,
-                                        itemBuilder: (context, index) {
-                                          return Obx(() =>  Container(
+                                          Container(
                                             alignment: Alignment.center,
-                                            width: ScreenUtil().setWidth(666),
-                                            height: ScreenUtil().setHeight(60),
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    SizedBox(
-                                                        width: ScreenUtil()
-                                                            .setWidth(250),
-                                                        child: Text(
-                                                          DonwloadSource.current.taskList[index]["ietm_name"],
-                                                          maxLines: 1,
-                                                          style: TextStyle(
-                                                              color: const Color
-                                                                  .fromRGBO(
-                                                                255,
-                                                                255,
-                                                                255,
-                                                                1,
-                                                              ),
-                                                              fontSize:
-                                                                  ScreenUtil()
-                                                                      .setSp(
-                                                                          20)),
-                                                        )),
-                                                    SizedBox(
-                                                      width: ScreenUtil()
-                                                          .setWidth(180),
-                                                      child: Obx(() =>Text(
-                                                        "${(DonwloadSource.current.taskList[index]["progress"]*100)}%",
-                                                        style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize:
-                                                                ScreenUtil()
-                                                                    .setSp(18)),
-                                                      )),
-                                                    ),
-                                                   Row(
-                                                    children: [
-                                                      Text(
-                                                        DonwloadSource.current.taskList[index]["isdownload"]==true?"已完成":DonwloadSource.current.taskList[index]["ispause"]==true?"已暂停":"正在下载",
-                                                        style: TextStyle(
-                                                            color: Colors.grey,
-                                                            fontSize:
-                                                                ScreenUtil()
-                                                                    .setSp(18)),
-                                                      ),
-                                                       GestureDetector(
-                                                      onTap: () {},
-                                                      child: Icon(
-                                                        DonwloadSource.current.taskList[index]["ispause"]==true?Icons.play_arrow:Icons.pause,
-                                                        color: Colors.white,
-                                                        size: ScreenUtil()
-                                                            .setHeight(28),
-                                                      ),
-                                                    ),
-                                                    ],
-                                                   )
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  height:
-                                                      ScreenUtil().setHeight(5),
-                                                ),
-                                                Container(
+                                            child: Text(
+                                              "下载队列",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize:
+                                                      ScreenUtil().setSp(28)),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        height: ScreenUtil().setHeight(49),
+                                      ),
+                                      Expanded(
+                                          child: Obx(
+                                        () => ListView.separated(
+                                          itemCount: DonwloadSource
+                                              .current.taskList.length,
+                                          itemBuilder: (context, index) {
+                                            return Obx(() => Container(
+                                                  alignment: Alignment.center,
                                                   width: ScreenUtil()
                                                       .setWidth(666),
                                                   height: ScreenUtil()
-                                                      .setHeight(18),
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                        width: 1,
-                                                        color: Color.fromRGBO(
-                                                            153, 153, 153, 1)),
-                                                    borderRadius:
-                                                        const BorderRadius.all(
-                                                            Radius.circular(8)),
+                                                      .setHeight(60),
+                                                  child: Column(
+                                                    children: [
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          SizedBox(
+                                                              width:
+                                                                  ScreenUtil()
+                                                                      .setWidth(
+                                                                          250),
+                                                              child: Text(
+                                                                DonwloadSource
+                                                                        .current
+                                                                        .taskList[index]
+                                                                    [
+                                                                    "ietm_name"],
+                                                                maxLines: 1,
+                                                                style:
+                                                                    TextStyle(
+                                                                        color: const Color
+                                                                            .fromRGBO(
+                                                                          255,
+                                                                          255,
+                                                                          255,
+                                                                          1,
+                                                                        ),
+                                                                        fontSize:
+                                                                            ScreenUtil().setSp(20)),
+                                                              )),
+                                                          SizedBox(
+                                                            width: ScreenUtil()
+                                                                .setWidth(180),
+                                                            child:
+                                                                Obx(() => Text(
+                                                                      "${(DonwloadSource.current.taskList[index]["progress"] * 100)}%",
+                                                                      style: TextStyle(
+                                                                          color: Colors
+                                                                              .grey,
+                                                                          fontSize:
+                                                                              ScreenUtil().setSp(18)),
+                                                                    )),
+                                                          ),
+                                                          Row(
+                                                            children: [
+                                                              Text(
+                                                                DonwloadSource.current.taskList[index]
+                                                                            [
+                                                                            "isdownload"] ==
+                                                                        true
+                                                                    ? "已完成"
+                                                                    : DonwloadSource.current.taskList[index]["ispause"] ==
+                                                                            true
+                                                                        ? "已暂停"
+                                                                        : "正在下载",
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .grey,
+                                                                    fontSize: ScreenUtil()
+                                                                        .setSp(
+                                                                            18)),
+                                                              ),
+                                                              GestureDetector(
+                                                                onTap: () {},
+                                                                child: Icon(
+                                                                  DonwloadSource.current.taskList[index]
+                                                                              [
+                                                                              "ispause"] ==
+                                                                          true
+                                                                      ? Icons
+                                                                          .play_arrow
+                                                                      : Icons
+                                                                          .pause,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: ScreenUtil()
+                                                                      .setHeight(
+                                                                          28),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          )
+                                                        ],
+                                                      ),
+                                                      SizedBox(
+                                                        height: ScreenUtil()
+                                                            .setHeight(5),
+                                                      ),
+                                                      Container(
+                                                        width: ScreenUtil()
+                                                            .setWidth(666),
+                                                        height: ScreenUtil()
+                                                            .setHeight(18),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          border: Border.all(
+                                                              width: 1,
+                                                              color: Color
+                                                                  .fromRGBO(
+                                                                      153,
+                                                                      153,
+                                                                      153,
+                                                                      1)),
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          8)),
+                                                        ),
+                                                        child:
+                                                            LinearProgressIndicator(
+                                                          value: DonwloadSource
+                                                                      .current
+                                                                      .taskList[
+                                                                  index]
+                                                              ["progress"],
+                                                          backgroundColor:
+                                                              Color.fromRGBO(
+                                                                  255,
+                                                                  255,
+                                                                  255,
+                                                                  0.10),
+                                                          valueColor:
+                                                              AlwaysStoppedAnimation<
+                                                                      Color>(
+                                                                  Color(
+                                                                      0xFFFFBB1A)),
+                                                        ),
+                                                      )
+                                                    ],
                                                   ),
-                                                  child:
-                                                      LinearProgressIndicator(
-                                                    value:DonwloadSource.current.taskList[index]["progress"],
-                                                    backgroundColor:
-                                                        Color.fromRGBO(255, 255,
-                                                            255, 0.10),
-                                                    valueColor:
-                                                        AlwaysStoppedAnimation<
-                                                                Color>(
-                                                            Color(0xFFFFBB1A)),
-                                                  ),
-                                                )
-                                              ],
-                                            ),
-                                          ));
-                                        },
-                                        separatorBuilder:
-                                            (BuildContext context, int index) =>
-                                                Divider(
-                                          height: ScreenUtil().setWidth(26),
+                                                ));
+                                          },
+                                          separatorBuilder:
+                                              (BuildContext context,
+                                                      int index) =>
+                                                  Divider(
+                                            height: ScreenUtil().setWidth(26),
+                                          ),
                                         ),
-                                      ),
-                                    ))
-                                  ],
+                                      ))
+                                    ],
+                                  ),
                                 ),
                               ))
                         ],

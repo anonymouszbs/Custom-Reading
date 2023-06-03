@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 /// 跳转到指定界面
@@ -27,4 +28,18 @@ currentTo({
     parameters: parameters,
     arguments: arguments,
   );
+}
+
+void currentGoback(BuildContext context, {Map? info}) {
+  //CommentTools.keydissmiss(context);
+  Get.back(result: info);
+}
+
+/// 获取界面传值 parameters
+Map<String, String?> currentGetParams() {
+  return Get.parameters;
+}
+
+dynamic currentGetArguments() {
+  return Get.arguments;
 }

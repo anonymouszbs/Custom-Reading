@@ -1,6 +1,7 @@
 
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ceshi1/common/commpents/reader/contants/floatcontroller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -19,7 +20,7 @@ class MenuProgress extends StatelessWidget {
             
             color: ReaderThemeC.current.theme.value.pannelBackgroundColor,
             width: MediaQuery.of(context).size.width,
-            height: ScreenUtil().screenHeight*0.3,
+            height: ScreenUtil().screenHeight*0.2,
             child:Wrap(
               children: [
                 Column(
@@ -64,12 +65,16 @@ class MenuProgress extends StatelessWidget {
                                 
 
                                 
-                                  value: 0.5,
-                                  min: 0,
+                                  value: FloatController.current.progress.value,
+                                 
                                   max:
-                                        1.0,
+                                        100.0,
                                   onChanged: (val) {
-                                   
+                                    FloatController.current.onToc.value = true;
+                                    FloatController.current.webViewController.evaluateJavascript(source: '''
+                                      onProgressChange($val);
+                                    ''');
+                                    FloatController.current.progress.value = val;
                                   },
                                   onChangeEnd: (v){})),
                         ),

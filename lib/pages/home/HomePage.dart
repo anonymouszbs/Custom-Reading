@@ -8,6 +8,7 @@ import 'package:ceshi1/main.dart';
 import 'package:ceshi1/pages/home/menu/menu_study_bar.dart';
 import 'package:ceshi1/pages/my/routers/my_page_id.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
+import 'package:ceshi1/untils/sp_util.dart';
 import 'package:ceshi1/widgets/public/Logo.dart';
 import 'package:ceshi1/widgets/public/pub_bg.dart';
 
@@ -42,30 +43,31 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: (){
-   
-    BotToast.showWidget(toastBuilder:(cancelFunc) {
-      return Material(
-        color: Colors.transparent,
-        child: Container(width: 200,height: 200,child: Column(
-        children: [
-        //  Slider(value: DonwloadSource.current.jindu.value,max: 1, onChanged: (v){}),
-        //   TextButton(onPressed: (){
-        //    // DonwloadSource.current.donwload(["http://42.192.3.15:89/1","http://42.192.3.15:89/storage/uploads/admin/document/20230601/647881906df58.epub"]);
-        //   }, child: Text("下载")),
-        //   TextButton(onPressed: (){
-        //     ALDownloader.removeAll();
-        //     ALDownloaderBatcher.remove(["http://42.192.3.15:89/1","http://42.192.3.15:89/storage/uploads/admin/document/20230601/647881906df58.epub"]);
-        //   }, child: Text("暂停")),
-        //   TextButton(onPressed: (){
-        //       DonwloadSource.current.start("http://42.192.3.15:89/1");
-        //   }, child: Text("继续")),
-        ],
-      ),),
-      );
-    },);
-     // currentToPage(ReaderPageId.reader);
-      }),
+    //   floatingActionButton: FloatingActionButton(onPressed: (){
+    //     SpUtil.clear();
+    //     print(SpUtil.getKeys().toString());
+    // // BotToast.showWidget(toastBuilder:(cancelFunc) {
+    // //   return Material(
+    // //     color: Colors.transparent,
+    // //     child: Container(width: 200,height: 200,child: Column(
+    // //     children: [
+    // //     //  Slider(value: DonwloadSource.current.jindu.value,max: 1, onChanged: (v){}),
+    // //     //   TextButton(onPressed: (){
+    // //     //    // DonwloadSource.current.donwload(["http://42.192.3.15:89/1","http://42.192.3.15:89/storage/uploads/admin/document/20230601/647881906df58.epub"]);
+    // //     //   }, child: Text("下载")),
+    // //     //   TextButton(onPressed: (){
+    // //     //     ALDownloader.removeAll();
+    // //     //     ALDownloaderBatcher.remove(["http://42.192.3.15:89/1","http://42.192.3.15:89/storage/uploads/admin/document/20230601/647881906df58.epub"]);
+    // //     //   }, child: Text("暂停")),
+    // //     //   TextButton(onPressed: (){
+    // //     //       DonwloadSource.current.start("http://42.192.3.15:89/1");
+    // //     //   }, child: Text("继续")),
+    // //     ],
+    // //   ),),
+    // //   );
+    // // },);
+    //  // currentToPage(ReaderPageId.reader);
+    //   }),
       body: Stack(
         children: [
           Pub_Bg(),

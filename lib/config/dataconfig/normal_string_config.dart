@@ -12,4 +12,10 @@ static const String firstinstal = "firstinstal";
 
 //下载标识
 static const String bookDownload = "bookDownload";
+
+
+//书籍详情info 可以给他加进度什么破几把玩意的
+static const String bookInfoId = "bookInfoId";
+
+static const String sourcesId = "sourcesId";
 }

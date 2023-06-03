@@ -17,7 +17,7 @@ class MenuThemes extends StatelessWidget {
           () => Container(
             color: ReaderThemeC.current.theme.value.pannelBackgroundColor,
             width: MediaQuery.of(context).size.width,
-            height: (ScreenUtil().screenHeight-110)*0.8,
+            height: (ScreenUtil().screenHeight-110)*0.4,
             child: Wrap(
               children: [
                 Column(

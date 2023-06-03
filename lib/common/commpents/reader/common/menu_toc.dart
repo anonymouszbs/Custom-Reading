@@ -1,3 +1,4 @@
+import 'package:ceshi1/common/commpents/reader/contants/floatcontroller.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -51,6 +52,7 @@ class MenuToc extends StatelessWidget {
                               final chapter = chapters[index - 1];
                               return InkWell(
                                 onTap: () {
+                                  FloatController.current.onToc.value = true;
                                   ReaderThemeC.current.currentindex.value = index - 1;
                                   onItemTap(index - 1, chapter['href']);
                                 },

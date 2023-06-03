@@ -1,14 +1,17 @@
+import 'package:ceshi1/untils/getx_untils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../../widgets/animation.dart';
 import '../contants/theme.dart';
 
+
 class MenuTop extends StatelessWidget {
   const MenuTop({super.key});
 
   @override
   Widget build(BuildContext context) {
+   // return Container();
     return Obx(() =>  AnimationsPY(
        padding:const EdgeInsets.only(top: 0),
         frame: SizedBox(
@@ -20,7 +23,9 @@ class MenuTop extends StatelessWidget {
             leading: Center(
               child: IconButton(
                   onPressed: () {
-                    Get.back();
+                     currentGoback(context,info: 
+                     {"1":""});
+                     
                   },
                   icon: Icon(
                     Icons.arrow_back,

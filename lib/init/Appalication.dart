@@ -5,6 +5,7 @@ import 'package:ceshi1/common/commpents/reader/contants/floatcontroller.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
 import 'package:ceshi1/common/network/download.dart';
 import 'package:ceshi1/config/routers/routers.dart';
+import 'package:ceshi1/pages/bookTree/controller/audioController.dart';
 import 'package:ceshi1/pages/home/controller/leftbarcontroller.dart';
 import 'package:ceshi1/untils/theme_tool.dart';
 import 'package:ceshi1/untils/utils_tool.dart';
@@ -49,8 +50,13 @@ class Application extends StatelessWidget {
 }
 
 class AllControllerBinding implements Bindings {
+  
   @override
   void dependencies() {
+    Get.put<AudioCtroller>(
+      AudioCtroller(),
+      permanent: true,
+    );
      Get.put<DonwloadSource>(
       DonwloadSource(),
       permanent: true,
