@@ -299,6 +299,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_pdfview:
+    dependency: "direct main"
+    description:
+      name: flutter_pdfview
+      sha256: d9735fd8991609910742a25c63a5f87060849e57e60112c677b802ddb64bed72
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.3.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -698,6 +706,14 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.11.0"
+  sticky_and_expandable_list:
+    dependency: "direct main"
+    description:
+      name: sticky_and_expandable_list
+      sha256: eef5080ea848e17e82674566709b41d28becb9f7ac223d7255b27c004a01de69
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.1.2"
   stream_channel:
     dependency: transitive
     description:

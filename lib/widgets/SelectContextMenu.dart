@@ -1,28 +1,35 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
+import 'package:ceshi1/public/public_class_bean.dart';
+import 'package:ceshi1/public/public_function.dart';
+import 'package:ceshi1/untils/sp_util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-enum Themetype{
-  dark,
-  light,
-  tan
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+enum Themetype { dark, light, tan }
+
+class UnderLinecolor {
+  String red = "#${Colors.red.value.toRadixString(16).substring(2)}";
+  String blue = "#${Colors.blue.value.toRadixString(16).substring(2)}";
+  String amber = "#${Colors.amber.value.toRadixString(16).substring(2)}";
+  String cyan = "#${Colors.cyan.value.toRadixString(16).substring(2)}";
 }
 
-class UnderLinecolor{
-  String red ="#${Colors.red.value.toRadixString(16).substring(2)}";
-  String blue ="#${Colors.blue.value.toRadixString(16).substring(2)}";
-  String amber ="#${Colors.amber.value.toRadixString(16).substring(2)}";
-  String cyan ="#${Colors.cyan.value.toRadixString(16).substring(2)}";
-}
 class SelectContextMenu {
   bool isshow = false;
   InAppWebViewController webViewController;
   // ignore: non_constant_identifier_names
   late OverlayEntry GlobalUIoverlayEntry;
 
-  SelectContextMenu(this.isshow, this.webViewController);
+  SourceMap id;
+
+  SelectContextMenu(
+      {required this.isshow,
+      required this.webViewController,
+      required this.id});
   void close() {
     if (isshow != true) {
       return;
@@ -37,34 +44,166 @@ class SelectContextMenu {
     // webViewController.clearFocus();
     // webViewController.requestFocusNodeHref();
   }
+
   ///获取选择文本
-  Future<String> getSelection()async{
-    return await webViewController.evaluateJavascript(source: 'currentContents.document.getSelection().toString();');
+  Future<String> getSelection() async {
+    return await webViewController.evaluateJavascript(
+        source: 'currentContents.document.getSelection().toString();');
   }
+
   ///主题切换
-  changeTheme(Themetype themetype){
-    
-    webViewController.evaluateJavascript(source: 'rendition.themes.select("雷云");');
+  changeTheme(Themetype themetype) {
+    webViewController.evaluateJavascript(
+        source: 'rendition.themes.select("雷云");');
   }
-   ///划线
-  underLine({required String color}){
+
+  ///划线
+  underLine({required String color}) async {
     if (kDebugMode) {
       print(color);
     }
-    webViewController.evaluateJavascript(source: '划线("$color");');
+    //获取所选择文本
+
+    String selectText =
+        await webViewController.evaluateJavascript(source: 'currentText;');
+    final currentCfg =
+        await webViewController.evaluateJavascript(source: 'currentCfg;');
+    print(currentCfg);
+
+
+    
+
+    saveNote(id: "${id.id}", map: {
+      "id": "${id.id}",
+      "cfg": currentCfg.toString(),
+      "text": selectText.toString().trim(),
+      "note": "",
+      "color": color
+    });
+
+    ReaderThemeC.current.webViewController.evaluateJavascript(source: '''
+rendition.annotations.remove("$currentCfg", 'highlight');
+                                onUnderline("$currentCfg","$color","${selectText.toString().trim()}","");
+''');
+
+    // webViewController.evaluateJavascript(source: '划线("$color");');
+  }
+
+  ///写笔记
+  writeNote(txt) async {
+    if (txt.toString().trim() == "") {
+      BotToast.showText(text: "所选内容不能为空");
+      return;
+    }
+    String selectText =
+        await webViewController.evaluateJavascript(source: 'currentText;');
+    final currentCfg =
+        await webViewController.evaluateJavascript(source: 'currentCfg;');
+   TextEditingController textEditingController = TextEditingController();
+    BotToast.showWidget(
+      toastBuilder: (cancelFunc) {
+        return Container(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: SizedBox(
+              width: 400,
+              child: AlertDialog(
+                titlePadding: EdgeInsets.all(0),
+                actionsPadding: EdgeInsets.all(0),
+                contentPadding: EdgeInsets.all(0),
+                title: const Text('添加笔记'),
+                content: TextField(
+                  controller: textEditingController,
+                  maxLines: 5,
+                  onChanged: (value) {
+                    ReaderThemeC.current.inputvalue.value = value;
+                  },
+                ),
+                actions: <Widget>[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          width: 200,
+                          height: 35,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue, width: 2),
+                          ),
+                          child: TextButton(
+                            onPressed: () {
+                              cancelFunc();
+                            },
+                            child: const Text(
+                              '取消',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10.w,
+                      ),
+                      Expanded(
+                          child: Container(
+                              width: 200,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextButton(
+                                onPressed: () async {
+                                  saveNote(id: "${id.id}", map: {
+                                    "id": "${id.id}",
+                                    "cfg": currentCfg.toString(),
+                                    "text": selectText.toString().trim(),
+                                    "note": ReaderThemeC.current.inputvalue.value,
+                                    "color":  UnderLinecolor().cyan
+                                  });
+
+                                  ReaderThemeC.current.webViewController.evaluateJavascript(source: '''
+rendition.annotations.remove("$currentCfg", 'highlight');
+                                onUnderline("$currentCfg","${UnderLinecolor().cyan}","$txt","${textEditingController.text}");
+''');
+                                  BotToast.showText(text: "保存成功");
+                                  // Utilstool.savebookkey(code);
+                                  cancelFunc();
+                                },
+                                child: const Text(
+                                  '保存',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              )))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   //下一页
-  nextpage(){
-   
-    ReaderThemeC.current.pageTurnAnimation.value?webViewController.evaluateJavascript(source: '下一页(300);'):webViewController.evaluateJavascript(source: 'rendition.next();');//里面的参数是动画师长
+  nextpage() {
+    ReaderThemeC.current.pageTurnAnimation.value
+        ? webViewController.evaluateJavascript(source: '下一页(300);')
+        : webViewController.evaluateJavascript(
+            source: 'rendition.next();'); //里面的参数是动画师长
   }
+
   //上一页
-  prevpage(){
-    ReaderThemeC.current.pageTurnAnimation.value?webViewController.evaluateJavascript(source: '上一页(300);'):webViewController.evaluateJavascript(source: 'rendition.prev();');//里面的参数是动画师长
+  prevpage() {
+    ReaderThemeC.current.pageTurnAnimation.value
+        ? webViewController.evaluateJavascript(source: '上一页(300);')
+        : webViewController.evaluateJavascript(
+            source: 'rendition.prev();'); //里面的参数是动画师长
   }
+
   void show(offset, context, InAppWebViewController webviewcontroller) {
-    
     if (isshow == true) {
       return;
     }
@@ -85,7 +224,8 @@ class SelectContextMenu {
                 TextSelectionToolbarTextButton(
                     padding: TextSelectionToolbarTextButton.getPadding(0, 5),
                     onPressed: () async {
-                      nextpage();
+                      String txt = await getSelection();
+                      writeNote(txt);
                       close();
                     },
                     child: const Text("写笔记")),
@@ -95,18 +235,19 @@ class SelectContextMenu {
                     if (kDebugMode) {
                       print(await getSelection());
                     }
-                    Clipboard.setData(ClipboardData(text: await getSelection()));
+                    Clipboard.setData(
+                        ClipboardData(text: await getSelection()));
                     BotToast.showText(text: "已复制");
                     close();
                   },
                   child: const Text("复制"),
                 ),
-               
+
                 TextSelectionToolbarTextButton(
                   padding: TextSelectionToolbarTextButton.getPadding(0, 3),
                   onPressed: () async {
-                   underLine(color: UnderLinecolor().red);
-                   close();
+                    underLine(color: UnderLinecolor().red);
+                    close();
                   },
                   child: const Icon(
                     Icons.format_color_text,
@@ -116,8 +257,8 @@ class SelectContextMenu {
                 TextSelectionToolbarTextButton(
                   padding: TextSelectionToolbarTextButton.getPadding(0, 4),
                   onPressed: () async {
-                     underLine(color: UnderLinecolor().blue);
-                   close();
+                    underLine(color: UnderLinecolor().blue);
+                    close();
                   },
                   child: const Icon(
                     Icons.format_color_text,
@@ -127,8 +268,8 @@ class SelectContextMenu {
                 TextSelectionToolbarTextButton(
                   padding: TextSelectionToolbarTextButton.getPadding(0, 5),
                   onPressed: () async {
-                     underLine(color: UnderLinecolor().amber);
-                   close();
+                    underLine(color: UnderLinecolor().amber);
+                    close();
                   },
                   child: const Icon(
                     Icons.format_color_text,
@@ -139,7 +280,7 @@ class SelectContextMenu {
                   padding: TextSelectionToolbarTextButton.getPadding(0, 5),
                   onPressed: () async {
                     underLine(color: UnderLinecolor().cyan);
-                   close();
+                    close();
                   },
                   child: const Icon(
                     Icons.format_color_text,

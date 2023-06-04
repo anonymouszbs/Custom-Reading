@@ -34,7 +34,7 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     // TODO: implement dispose
-
+    animationController.dispose();
     super.dispose();
   }
 
@@ -230,8 +230,9 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
                               child: InkWell(
                                 splashColor: Colors.grey,
                                 onTap: () {
-                                //  login();
-                                   currentTo(name: HomePageId.home);
+                                  isagree==true?login():BotToast.showText(text: "请先同意阅读用户协议");
+                                  
+                                   //currentTo(name: HomePageId.home);
                                 },
                               ),
                             ))
@@ -321,7 +322,8 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
                     child: Slider(
                         value: speed,
                         max: 100.0,
-                        thumbColor: Colors.amber[200],
+                        activeColor: Colors.amber[200],
+                        thumbColor: Colors.blue[200],
                         onChanged: (v) {}),
                   )
                 : Container()),

@@ -93,7 +93,8 @@ class DonwloadSource extends GetxController {
                   "id": data[e]["id"],
                   "progress": 0.0,
                   "cfi": [""],
-                  "duration": 0
+                  "duration": 0,
+                  "filepath":"",
                 });
               }
 

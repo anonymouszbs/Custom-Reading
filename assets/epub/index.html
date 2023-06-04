@@ -44,7 +44,7 @@
 		var pageNumId = document.getElementById("pageNumId");
 		var $viewer = document.getElementById("viewer");
 		var book;
-		var currentContents, currentCfg;
+		var currentContents, currentCfg,currentText;
 		var width;
 		var timer;
 
@@ -256,12 +256,28 @@
 			}, interval);
 		}
 
+		function onUnderline(cfg,color,txt,note){
+			rendition.annotations.highlight(cfg, {
+				// 属性  例如 name:"name" -> data-name='name'
+				
+			}, function () {
+				// 点击事件回调
+				window.flutter_inappwebview.callHandler("onUnderline", [cfg,color,txt,note]);
+			}, 'className', {
+				// style
+				'fill': color,
+			});
+		}
+
+
 		function 划线(color) {
 
 			rendition.annotations.highlight(currentCfg, {
 				// 属性  例如 name:"name" -> data-name='name'
+				
 			}, function () {
 				// 点击事件回调
+				
 			}, 'className', {
 				// style
 				'fill': color,
@@ -275,6 +291,7 @@
 			var range = contents.window.getSelection().getRangeAt(0); // 获取所选文本范围
 			currentContents = contents; //全局现行contents
 			currentCfg = cfg;
+			currentText =  text;//所选文本
 			range = contents.range(cfg);
 			const {
 				x,

@@ -23,8 +23,8 @@ class MenuTop extends StatelessWidget {
             leading: Center(
               child: IconButton(
                   onPressed: () {
-                     currentGoback(context,info: 
-                     {"1":""});
+                    
+                     Get.back(result: true);
                      
                   },
                   icon: Icon(

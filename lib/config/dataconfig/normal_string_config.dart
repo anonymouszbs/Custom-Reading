@@ -18,4 +18,6 @@ static const String bookDownload = "bookDownload";
 static const String bookInfoId = "bookInfoId";
 
 static const String sourcesId = "sourcesId";
+
+static const String noteId = "noteId";
 }

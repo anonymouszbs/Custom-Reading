@@ -139,6 +139,8 @@ class ReaderThemeC extends GetxController{
   Rx<double> readerFontSize = 22.0.obs;
   Rx<bool> pageTurnAnimation = true.obs;
   ScrollController tocScrollController = ScrollController(keepScrollOffset: true);
+
+  Rx<String> inputvalue = "".obs;
   changeTheme(type){
     theme = type;
   }

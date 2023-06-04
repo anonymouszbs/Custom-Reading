@@ -53,8 +53,9 @@ class _ReaderViewPageState extends State<ReaderViewPage>
     widgets = currentGetArguments();
     path = widgets[0];
     sourceidData = widgets[1];
-    super.initState();
 
+    saveSource(id: sourceidData["id"], map: {"filepath": path.toString()});
+    super.initState();
     getpath();
   }
 
@@ -245,32 +246,172 @@ class _ReaderViewPageState extends State<ReaderViewPage>
         groupKey: cLeftId);
   }
 
+  initUnderline() {
+    var id = sourceidData["id"];
+
+    if (findKey(id: getNoteId(id: id)) == true) {
+      print("开始化纤了");
+      var info = SpUtil.getObject(getNoteId(id: id));
+      List cfg = info!["cfg"];
+      List note = info["note"];
+      List color = info["color"];
+      List text = info["text"];
+      cfg.asMap().keys.map((e) async {
+        await FloatController.current.webViewController
+            .evaluateJavascript(source: '''
+            onUnderline("${cfg[e]}","${color[e]}","${text[e]}","${note[e]}",);
+''');
+      }).toList();
+    }
+  }
+///写笔记
+  writeNote({cfg,color,txt,note}) async {
+    var id = sourceidData["id"];
+    if (txt.toString().trim() == "空_") {
+     
+      return;
+    }
+    TextEditingController textEditingController = TextEditingController(text: note.toString()=="空_"?"":note.toString());
+    // String selectText =
+    //     await FloatController.current.webViewController.evaluateJavascript(source: 'currentText;');
+    // final currentCfg =
+    //     await  FloatController.current.webViewController.evaluateJavascript(source: 'currentCfg;');
+    BotToast.cleanAll();
+    BotToast.showWidget(
+      toastBuilder: (cancelFunc) {
+        return Container(
+          alignment: Alignment.topCenter,
+          child: Material(
+            color: Colors.transparent,
+            child: SizedBox(
+              width: 400,
+              child: AlertDialog(
+                titlePadding: EdgeInsets.all(0),
+                actionsPadding: EdgeInsets.all(0),
+                contentPadding: EdgeInsets.all(0),
+                title: const Text('添加笔记'),
+                content: TextField(
+                   controller: textEditingController,
+                  maxLines: 5,
+                  onChanged: (value) {
+                    print(value);
+                    ReaderThemeC.current.inputvalue.value = value;
+                  },
+                ),
+                actions: <Widget>[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          width: 200,
+                          height: 35,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.blue, width: 2),
+                          ),
+                          child: TextButton(
+                            onPressed: () {
+                              cancelFunc();
+                            },
+                            child: const Text(
+                              '取消',
+                              style: TextStyle(color: Colors.blue),
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 10.w,
+                      ),
+                      Expanded(
+                          child: Container(
+                              width: 200,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: TextButton(
+                                onPressed: () async {
+                                  saveNote(id: "$id", map: {
+                                    "id": "$id",
+                                    "cfg": cfg,
+                                    "text": txt,
+                                    "note": textEditingController.text,
+                                    "color":   color
+                                  });
+                                  BotToast.showText(text: textEditingController.text);
+                                  ReaderThemeC.current.webViewController.evaluateJavascript(source: '''
+rendition.annotations.remove("$cfg", 'highlight');
+                                onUnderline("$cfg","$color","$txt","${textEditingController.text}",);
+''');
+// saveNote(id: "${id.id}", map: {
+//                                     "id": "${id.id}",
+//                                     "cfg": cfg.toString(),
+//                                     "text": txt.toString().trim(),
+//                                     "note":  textEditingController.text,
+//                                     "color":  color
+//                                   });
+                                  // Utilstool.savebookkey(code);
+                                  cancelFunc();
+                                },
+                                child: const Text(
+                                  '保存',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              )))
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
   void readerCreateListen() {
     //加载网页
     FloatController.current.webViewController.loadUrl(
         urlRequest: URLRequest(
             url: WebUri.uri(Uri.parse("http://localhost:8080/index.html"))));
+
+    //监听点击划线的地方
+    FloatController.current.webViewController.addJavaScriptHandler(
+        handlerName: 'onUnderline',
+        callback: (args) async {
+           print(args);
+           writeNote(cfg: args[0][0],color: args[0][1],txt: args[0][2],note: args[0][3]);
+        });
+
     //监听是否加载完毕
     FloatController.current.webViewController.addJavaScriptHandler(
         handlerName: 'epubinit',
-        callback: (args) {
+        callback: (args)async {
           FloatController.current.isShowReadView.value = true;
-          var sourcesid =
-              getsourceid(id: sourceidData["id"]);
+          if (sourceidData["posi"] != null) {
+           await  FloatController.current.webViewController.evaluateJavascript(
+                source: '''rendition.display("${sourceidData["posi"]}");''');
+            
+            print(sourceidData["posi"]);
+          } else {
+            var sourcesid = getsourceid(id: sourceidData["id"]);
 
-          if (findKey(id:sourcesid) == true) {
-            SourceMap sourceMap = getsourceidMap(id: sourceidData["id"]);
-            var currentlocation =  sourceMap.cfi[sourceMap.cfi.length-1];
-            if(currentlocation==""){
-             FloatController.current.webViewController.evaluateJavascript(
-                source: '''rendition.display();''');
-            }else{
-              FloatController.current.webViewController.evaluateJavascript(
-                source: '''rendition.display("$currentlocation");''');
+            if (findKey(id: sourcesid) == true) {
+              SourceMap sourceMap = getsourceidMap(id: sourceidData["id"]);
+              var currentlocation = sourceMap.cfi[sourceMap.cfi.length - 1];
+              if (currentlocation == "") {
+               await FloatController.current.webViewController
+                    .evaluateJavascript(source: '''rendition.display();''');
+              } else {
+              await  FloatController.current.webViewController.evaluateJavascript(
+                    source: '''rendition.display("$currentlocation");''');
+              }
+              BotToast.showText(text: currentlocation);
             }
-            BotToast.showText(text:currentlocation );
             
           }
+          initUnderline();
         });
     FloatController.current.webViewController.addJavaScriptHandler(
         handlerName: 'epubprogress',
@@ -369,18 +510,20 @@ class _ReaderViewPageState extends State<ReaderViewPage>
           return false;
         },
         child: Scaffold(
-            floatingActionButtonLocation: CustomFloatingActionButtonLocation(
-                FloatingActionButtonLocation.endFloat, 0, -40),
-            floatingActionButton: floatisShow ? const MenuFloat() : null,
-//         floatingActionButton: FloatingActionButton(onPressed: () {
+            // floatingActionButtonLocation: CustomFloatingActionButtonLocation(
+            //     FloatingActionButtonLocation.endFloat, 0, -40),
+            // floatingActionButton: floatisShow ? const MenuFloat() : null,
+            floatingActionButton: FloatingActionButton(onPressed: () {
 //           print(FloatController.current.currentlocation);
-//           FloatController.current.webViewController
-//               .evaluateJavascript(source: '''
-// rendition.display("${FloatController.current.currentlocation}");
-// ''');
+              FloatController.current.webViewController
+                  .evaluateJavascript(source: '''
+rendition.display("epubcfi(/6/6[id13]!/4[UGI0-78631cf2f9774e34babacd1668fc2af3]/2[UGI1-a84879e1dcbb4233bb344b830d3e0edf],/1:0,/1:2)");
+''');
+
+              SpUtil.clear();
 //           //  DonwloadSource.current.createFile();
 //           print(path);
-//         }),
+            }),
             body: Stack(
               children: [
                 SizedBox(
@@ -388,11 +531,16 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                   height: ScreenUtil().screenHeight.toInt().toDouble(),
                   child: InAppWebView(
                     onWebViewCreated: (controller) async {
+                      SourceMap sourceMap =
+                          getsourceidMap(id: sourceidData["id"]);
                       ReaderThemeC.current.webViewController = controller;
                       FloatController.current.webViewController = controller;
                       ReaderThemeC.current.selectContextMenu =
                           SelectContextMenu(
-                              false, FloatController.current.webViewController);
+                              isshow: false,
+                              webViewController:
+                                  FloatController.current.webViewController,
+                              id: sourceMap);
                       readerCreateListen();
                     },
                     contextMenu: ContextMenu(),
@@ -447,8 +595,7 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                       height: ScreenUtil().screenHeight,
                       child: GestureDetector(
                         onTap: () async {
-                        var sourcesid =
-              getsourceid(id: sourceidData["id"]);
+                          var sourcesid = getsourceid(id: sourceidData["id"]);
 
                           print(sourcesid);
                           double speed = 0.0;
@@ -456,8 +603,9 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                           if (FloatController.current.onToc.value == true) {
                             ReaderThemeC.current.selectContextMenu.nextpage();
                           } else {
-                            if (findKey(id:sourcesid) == true) {
-                              SourceMap sourceMap = getsourceidMap(id: sourceidData["id"]);
+                            if (findKey(id: sourcesid) == true) {
+                              SourceMap sourceMap =
+                                  getsourceidMap(id: sourceidData["id"]);
                               if (sourceMap.progress <=
                                   FloatController.current.progress.value) {
                                 if (now - lastBackPressedTime > 3000) {
@@ -503,13 +651,14 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                                 var sourcesid =
                                     getsourceid(id: sourceidData["id"]);
 
-                                SourceMap sourceMap = getsourceidMap(id: sourceidData["id"]);
-                                
+                                SourceMap sourceMap =
+                                    getsourceidMap(id: sourceidData["id"]);
+
                                 var currentloaction =
-                                    sourceMap.cfi[sourceMap.cfi.length-1];
+                                    sourceMap.cfi[sourceMap.cfi.length - 1];
                                 FloatController.current.onToc.value = false;
                                 FloatController.current.progress.value =
-                                   sourceMap.progress;
+                                    sourceMap.progress;
                                 FloatController.current.webViewController
                                     .evaluateJavascript(source: '''
   rendition.display("${currentloaction}");

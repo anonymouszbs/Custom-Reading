@@ -19,6 +19,7 @@ import 'package:get/get.dart';
 
 import '../../common/keepalive.dart';
 import '../../widgets/animation/fadeanimation.dart';
+import 'honor/honor.dart';
 import 'menu/menu_leftbar.dart';
 import 'menu/menu_find.dart';
 
@@ -164,10 +165,7 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           KeepLivepage(frame: FadeInWidget(key: GlobalKey(), child:const MenuTypeList())),
                           FadeInWidget(key: GlobalKey(), child:const MenuStudy()),
-                          Container(
-                    alignment: Alignment.center,
-                    child: Text("待开发",style: TextStyle(color: Colors.white),),
-                  ),
+                          FadeInWidget(key: GlobalKey(), child: HonorPage()),
                   Container(
                     alignment: Alignment.center,
                     child: Text("待开发",style: TextStyle(color: Colors.white),),

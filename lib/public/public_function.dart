@@ -17,6 +17,11 @@ bool? findKey({id}) {
   return SpUtil.containsKey("$id");
 }
 
+String getNoteId({id}){
+   return "${NormalFlagIdConfig.noteId}$id";
+}
+
+
 String getsourceid({id}) {
   return "${NormalFlagIdConfig.sourcesId}$id";
 }
@@ -54,6 +59,54 @@ String getBookDownloadid({id}) {
 List<Map<dynamic, dynamic>> getBookDownloadList({id}) {
   String bookDownloadId = getBookDownloadid(id: "$id");
   return SpUtil.getObjectList(bookDownloadId)!;
+}
+
+
+void saveNote({required id,required map}){
+
+  print(map);
+  String noteId = getNoteId(id: "$id");
+  List ceshi;
+  if(findKey(id: noteId)==true){
+    Map jmap = SpUtil.getObject(noteId)!;
+    jmap["id"] = map["id"];
+    List cfg = jmap['cfg'];
+    List text = jmap["text"];
+    List note = jmap["note"];
+    List color = jmap["color"];
+    if(cfg.contains(map["cfg"])==true){
+       print("已保存");
+      int cfgindex = cfg.indexOf(map["cfg"]);
+      text[cfgindex] = map["text"];
+      note[cfgindex] = map["note"]==""?"空_":map["note"];
+      color[cfgindex] = map["color"];
+      SpUtil.putObject(noteId, Map.castFrom({"id":map["id"],"cfg":cfg,"text":text,"note":note,"color":color}));
+    }else{
+      cfg.add(map["cfg"]);
+      text.add(map['text']);
+      note.add(map["note"]==""?"空_":map["note"]);
+      color.add(map["color"]);
+      SpUtil.putObject(noteId, Map.castFrom({"id":map["id"],"cfg":cfg,"text":text,"note":note,"color":color}));
+    }
+    // if(jmap["cfg"].contains(map["cfg"])==true){
+    //   print("已保存");
+    //   int cfgindex = jmap["cfg"].indexOf(map["cfg"]);
+    //   jmap["text"][cfgindex] = map["text"]==""?"空_":map["text"];
+    //   jmap["note"][cfgindex] =map["note"]==""?"空_":map["note"];
+    // }else{
+    //   jmap["cfg"] = jmap["cfg"].add(map["cfg"]==""?"空_":map["cfg"]);
+    //   jmap["text"] = jmap["text"].add(map["text"]==""?"空_":map["text"]);
+    //   jmap["note"] = jmap["note"].add(map["note"]==""?"空_":map["note"]);
+    // }
+    
+    // SpUtil.putObject(noteId, Map.castFrom(jmap));
+  }else{
+    Map jmap =  {"id":map["id"],"cfg":[map["cfg"]],"text":[map["text"]],"note":[map["note"].toString()==""?"空_":map["note"].toString(),],"color":[map["color"]]};
+    // jmap["cfg"] = jmap["cfg"].add(map["cfg"]);
+    // jmap["text"] =   jmap["text"].add(map["text"]);
+    // jmap["note"] = jmap["note"].add(map["note"]);
+    SpUtil.putObject(noteId, Map.castFrom(jmap));
+  }
 }
 
 void saveSource({required id, required map}) {

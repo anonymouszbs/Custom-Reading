@@ -47,6 +47,7 @@ class _BookDetailsPageState extends State<BookDetailsPage> {
 on(){
   double step = 0.0;
   bookinfoData = getBookInfoidMap(id: bookid);
+ print(bookid.toString());
   bookDownloadList = getBookDownloadList(id: bookid);
   bookDownloadList.map((e) {
       SourceMap sourceMap = getsourceidMap(id:e["id"]);
@@ -59,8 +60,9 @@ on(){
  
   onbook(index) {
     final type = bookDownloadList[index]["ResourceType"];
+    print(type);
     switch (type) {
-      case "mp3":
+      case "mp3"||"MP3":
         BotToast.cleanAll();
         imagestep(
             id: bookDownloadList[index]['id'],
@@ -78,7 +80,7 @@ on(){
                 (ScreenUtil().screenWidth - ScreenUtil().setWidth(242)) / 2,
                 (ScreenUtil().screenHeight - ScreenUtil().setHeight(450)) / 2));
         break;
-      case "epub":
+      case "epub"||"EPUB":
         var filename =
             File(bookDownloadList[index]["FilePath"]).path.split('/').last;
         UtilsToll().copyFiles(
@@ -91,6 +93,10 @@ on(){
         BotToast.showText(text: "text");
         currentToPage(BookTreePageId.video, arguments: bookDownloadList[index]);
         break;
+      case "pdf" || "PDF":
+        BotToast.showText(text: "text");
+        currentToPage(BookTreePageId.documentpdf, arguments: bookDownloadList[index]);
+        break;  
       default:
     }
   }

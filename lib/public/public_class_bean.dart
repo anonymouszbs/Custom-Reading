@@ -97,6 +97,7 @@ class SourceMap {
     required this.progress,
     required this.cfi,
     required this.duration,
+    required this.filepath
   });
   factory SourceMap.fromJson(Map json) {
     return SourceMap(
@@ -104,18 +105,21 @@ class SourceMap {
       progress: json['progress'],
       cfi: json['cfi'],
       duration: json['duration'],
+      filepath:json["filepath"]
     );
   }
   final int id;
   final double progress;
   final List<String> cfi;
   final int duration;
+  final String? filepath;
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'progress': progress,
       'cfi': cfi,
       'duration': duration,
+      'filepath': filepath,
     };
   }
   SourceMap copyWith({
@@ -123,12 +127,14 @@ class SourceMap {
     double? progress,
     List<String>? cfi,
     int? duration,
+    String? filepath
   }) {
     return SourceMap(
       id: id ?? this.id,
       progress: progress ?? this.progress,
       cfi: cfi ?? this.cfi,
       duration: duration ?? this.duration,
+      filepath:filepath??this.filepath,
     );
   }
 

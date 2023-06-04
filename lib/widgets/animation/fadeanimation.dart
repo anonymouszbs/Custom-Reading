@@ -28,6 +28,7 @@ class _FadeInWidgetState extends State<FadeInWidget> with SingleTickerProviderSt
   @override
   void dispose() {
     _animationController.dispose();
+    
     super.dispose();
   }
 
