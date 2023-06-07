@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
-import 'dart:io';
-import 'dart:ui' as ui;
+
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/commpents/reader/common/menu_bottom.dart';
@@ -13,7 +12,6 @@ import 'package:ceshi1/common/commpents/reader/common/menu_toc.dart';
 import 'package:ceshi1/common/commpents/reader/common/menu_top.dart';
 import 'package:ceshi1/common/commpents/reader/contants/floatcontroller.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
-import 'package:ceshi1/common/network/download.dart';
 import 'package:ceshi1/public/public_class_bean.dart';
 import 'package:ceshi1/public/public_function.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
@@ -27,9 +25,8 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-import '../../../config/dataconfig/normal_string_config.dart';
 import '../../../untils/utils_tool.dart';
-import '../../../widgets/SelectContextMenu.dart';
+import 'common/SelectContextMenu.dart';
 import 'common/menu_theme.dart';
 import 'utils/utilstool.dart';
 
@@ -48,12 +45,13 @@ class _ReaderViewPageState extends State<ReaderViewPage>
   var str = "";
   var path = "";
   var sourceidData;
+
   @override
   void initState() {
     widgets = currentGetArguments();
     path = widgets[0];
     sourceidData = widgets[1];
-
+    ReaderThemeC.current.bookid = sourceidData["id"];
     saveSource(id: sourceidData["id"], map: {"filepath": path.toString()});
     super.initState();
     getpath();
@@ -62,6 +60,7 @@ class _ReaderViewPageState extends State<ReaderViewPage>
   @override
   void dispose() {
     // TODO: implement dispose
+    ReaderThemeC.current.tocButtonsCurrentIndex.value = 0;
     BotToast.cleanAll();
     FloatController.current.onToc.value = false;
     FloatController.current.isShowReadView.value = false;
@@ -257,10 +256,12 @@ class _ReaderViewPageState extends State<ReaderViewPage>
       List color = info["color"];
       List text = info["text"];
       cfg.asMap().keys.map((e) async {
-        await FloatController.current.webViewController
+        if(!cfg[e].isEmpty){
+          await FloatController.current.webViewController
             .evaluateJavascript(source: '''
             onUnderline("${cfg[e]}","${color[e]}","${text[e]}","${note[e]}",);
 ''');
+        }
       }).toList();
     }
   }
@@ -343,7 +344,7 @@ class _ReaderViewPageState extends State<ReaderViewPage>
                                   BotToast.showText(text: textEditingController.text);
                                   ReaderThemeC.current.webViewController.evaluateJavascript(source: '''
 rendition.annotations.remove("$cfg", 'highlight');
-                                onUnderline("$cfg","$color","$txt","${textEditingController.text}",);
+                                onUnderline("$cfg","$color","$txt","${textEditingController.text}");
 ''');
 // saveNote(id: "${id.id}", map: {
 //                                     "id": "${id.id}",
@@ -510,20 +511,20 @@ rendition.annotations.remove("$cfg", 'highlight');
           return false;
         },
         child: Scaffold(
-            // floatingActionButtonLocation: CustomFloatingActionButtonLocation(
-            //     FloatingActionButtonLocation.endFloat, 0, -40),
-            // floatingActionButton: floatisShow ? const MenuFloat() : null,
-            floatingActionButton: FloatingActionButton(onPressed: () {
-//           print(FloatController.current.currentlocation);
-              FloatController.current.webViewController
-                  .evaluateJavascript(source: '''
-rendition.display("epubcfi(/6/6[id13]!/4[UGI0-78631cf2f9774e34babacd1668fc2af3]/2[UGI1-a84879e1dcbb4233bb344b830d3e0edf],/1:0,/1:2)");
-''');
+            floatingActionButtonLocation: CustomFloatingActionButtonLocation(
+                FloatingActionButtonLocation.endFloat, 0, -40),
+             floatingActionButton: floatisShow ? const MenuFloat() : null,
+//             floatingActionButton: FloatingActionButton(onPressed: () {
+// //           print(FloatController.current.currentlocation);
+//               FloatController.current.webViewController
+//                   .evaluateJavascript(source: '''
+// rendition.display("epubcfi(/6/10[x_chapter_0001.xhtml]!/4/14,/1:48,/1:268)");
+// ''');
 
-              SpUtil.clear();
-//           //  DonwloadSource.current.createFile();
-//           print(path);
-            }),
+//               SpUtil.clear();
+// //           //  DonwloadSource.current.createFile();
+// //           print(path);
+//             }),
             body: Stack(
               children: [
                 SizedBox(
@@ -533,6 +534,7 @@ rendition.display("epubcfi(/6/6[id13]!/4[UGI0-78631cf2f9774e34babacd1668fc2af3]/
                     onWebViewCreated: (controller) async {
                       SourceMap sourceMap =
                           getsourceidMap(id: sourceidData["id"]);
+                          
                       ReaderThemeC.current.webViewController = controller;
                       FloatController.current.webViewController = controller;
                       ReaderThemeC.current.selectContextMenu =
@@ -597,8 +599,7 @@ rendition.display("epubcfi(/6/6[id13]!/4[UGI0-78631cf2f9774e34babacd1668fc2af3]/
                         onTap: () async {
                           var sourcesid = getsourceid(id: sourceidData["id"]);
 
-                          print(sourcesid);
-                          double speed = 0.0;
+                         
                           int now = DateTime.now().millisecondsSinceEpoch;
                           if (FloatController.current.onToc.value == true) {
                             ReaderThemeC.current.selectContextMenu.nextpage();
@@ -642,14 +643,12 @@ rendition.display("epubcfi(/6/6[id13]!/4[UGI0-78631cf2f9774e34babacd1668fc2af3]/
                           alignment: Alignment.center,
                           width: ScreenUtil().setWidth(230),
                           height: ScreenUtil().setHeight(50),
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                               color: Colors.blue,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(10))),
                           child: TextButton.icon(
                               onPressed: () {
-                                var sourcesid =
-                                    getsourceid(id: sourceidData["id"]);
 
                                 SourceMap sourceMap =
                                     getsourceidMap(id: sourceidData["id"]);
@@ -661,7 +660,7 @@ rendition.display("epubcfi(/6/6[id13]!/4[UGI0-78631cf2f9774e34babacd1668fc2af3]/
                                     sourceMap.progress;
                                 FloatController.current.webViewController
                                     .evaluateJavascript(source: '''
-  rendition.display("${currentloaction}");
+  rendition.display("$currentloaction");
 ''');
                               },
                               icon: Icon(

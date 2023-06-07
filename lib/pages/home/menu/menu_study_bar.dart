@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ceshi1/widgets/animation/fadeanimation.dart';
 import 'package:ceshi1/widgets/public/loading1.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,12 +11,15 @@ import 'package:get/get.dart';
 import '../../../common/network/ApiServices.dart';
 import '../../../common/network/download.dart';
 import '../../../config/dataconfig/normal_string_config.dart';
+import '../../../public/public_function.dart';
 import '../../../untils/getx_untils.dart';
 import '../../../untils/sp_util.dart';
 import '../../../widgets/animation/stepwidget.dart';
 import '../../../widgets/public/SliverGridDelegateWithFixedSize.dart';
 import '../../../widgets/public/textwidget.dart';
+import '../../bookTree/controller/detailscontroller.dart';
 import '../../bookTree/routers/booktree_page_id.dart';
+import 'ceshi.dart';
 
 class MenuStudy extends StatefulWidget {
   const MenuStudy({super.key});
@@ -47,17 +52,19 @@ class _MenuStudyState extends State<MenuStudy> {
     var jsondata =
         await ApiService.getBookPlanShelf(ResourceState: resourceStateId);
 
-    if (jsondata['code'] == 1) {
-      setState(() {
-        bookPlanListData[currentindex] = jsondata['data'];
-        if (bookPlanListData[currentindex].isEmpty) {
-          state = LoaddingState.ERROR;
-        }
-        print(bookPlanListData);
-      });
-    } else {
-      state = LoaddingState.ERROR;
-      setState(() {});
+    if (currentindex != 2) {
+      if (jsondata['code'] == 1) {
+        setState(() {
+          bookPlanListData[currentindex] = jsondata['data'];
+          if (bookPlanListData[currentindex].isEmpty) {
+            state = LoaddingState.ERROR;
+          }
+          print(bookPlanListData);
+        });
+      } else {
+        state = LoaddingState.ERROR;
+        setState(() {});
+      }
     }
   }
 
@@ -135,13 +142,15 @@ class _MenuStudyState extends State<MenuStudy> {
                   color: Colors.transparent,
                   child: InkWell(
                       onTap: () {
-                        if (SpUtil.containsKey(NormalFlagIdConfig.bookDownload +
-                                data[index]["ietm_id"].toString()) ==
+
+                        var id = data[index]["ietm_id"];
+                        if (findKey(
+                                id: getBookInfoid(
+                                    id: id))  ==
                             true) {
-                          currentToPage(BookTreePageId.bookdetails, arguments: [
-                            data[index]["ietm_id"],
-                            ApiService.AppUrl + data[index]["Thumbnail"]
-                          ]);
+
+                         DetailsController.current.setDetails(bookid:id,bookimage: ApiService.AppUrl + data[index]["Thumbnail"]);
+                          currentToPage(BookTreePageId.bookdetails);
                         } else {
                           DonwloadSource.current.donwload(
                               currentIndex: currentindex,
@@ -529,13 +538,7 @@ class _MenuStudyState extends State<MenuStudy> {
                   children: [
                     datalist(data: bookPlanListData[0]),
                     datalist(data: bookPlanListData[1]),
-                    Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "待开发",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    )
+                    ExampleCustomSectionAnimation()
                   ],
                 ),
               )),

@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bot_toast/bot_toast.dart';
-import 'package:ceshi1/config/dataconfig/normal_string_config.dart';
+
 import 'package:ceshi1/public/public_class_bean.dart';
 import 'package:ceshi1/public/public_function.dart';
-import 'package:ceshi1/untils/sp_util.dart';
+
 import 'package:get/get.dart';
+
+import 'detailscontroller.dart';
 
 enum MP3PLAYSTATE { STOP, PAUSE, PLAY }
 
@@ -51,6 +53,7 @@ class AudioCtroller extends GetxController {
           playstate.value = MP3PLAYSTATE.PAUSE;
           break;
         case PlayerState.stopped:
+        DetailsController.current.shuaxin();
           playstate.value = MP3PLAYSTATE.STOP;
           step.value = 0;
           break;

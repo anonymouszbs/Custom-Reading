@@ -1,3 +1,4 @@
+import 'package:ceshi1/pages/bookTree/controller/detailscontroller.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,8 +24,8 @@ class MenuTop extends StatelessWidget {
             leading: Center(
               child: IconButton(
                   onPressed: () {
-                    
-                     Get.back(result: true);
+                    DetailsController.current.shuaxin();
+                    Get.back(result: true);
                      
                   },
                   icon: Icon(

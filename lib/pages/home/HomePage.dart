@@ -1,27 +1,22 @@
 
 
-import 'package:al_downloader/al_downloader.dart';
-import 'package:bot_toast/bot_toast.dart';
-import 'package:ceshi1/common/commpents/reader/routers.dart/reader_page_id.dart';
-import 'package:ceshi1/common/network/download.dart';
-import 'package:ceshi1/main.dart';
 import 'package:ceshi1/pages/home/menu/menu_study_bar.dart';
 import 'package:ceshi1/pages/my/routers/my_page_id.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
-import 'package:ceshi1/untils/sp_util.dart';
+
 import 'package:ceshi1/widgets/public/Logo.dart';
 import 'package:ceshi1/widgets/public/pub_bg.dart';
 
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
+
 
 import '../../common/keepalive.dart';
 import '../../widgets/animation/fadeanimation.dart';
 import 'honor/honor.dart';
+import 'menu/menu_find_bar.dart';
 import 'menu/menu_leftbar.dart';
-import 'menu/menu_find.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -163,8 +158,14 @@ class _HomePageState extends State<HomePage> {
                         scrollDirection: Axis.vertical,
                         controller: leftBarCtr,
                         children: [
-                          KeepLivepage(frame: FadeInWidget(key: GlobalKey(), child:const MenuTypeList())),
-                          FadeInWidget(key: GlobalKey(), child:const MenuStudy()),
+                          KeepLivepage(frame: FadeInWidget(key: GlobalKey(), child:const MenuFindBar())),
+                          Container(
+        padding: EdgeInsets.only(top: ScreenUtil().setHeight(28),left: ScreenUtil().setWidth(20),bottom:ScreenUtil().setHeight(28) ),
+        alignment: Alignment.topLeft,
+        width: ScreenUtil().setWidth(1116),
+        height: ScreenUtil().setHeight(961),
+        child:const MenuStudy() ,
+       ),
                           FadeInWidget(key: GlobalKey(), child: HonorPage()),
                   Container(
                     alignment: Alignment.center,

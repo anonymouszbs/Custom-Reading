@@ -11,6 +11,7 @@ import 'package:video_player/video_player.dart';
 
 import '../../../config/dataconfig/normal_string_config.dart';
 import '../../../untils/sp_util.dart';
+import '../controller/detailscontroller.dart';
 import 'controller/videocontroller.dart';
 
 class VideoPlayScreen extends StatefulWidget {
@@ -90,6 +91,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
 
   @override
   void dispose() {
+    
     // TODO: implement dispose
     _videoPlayerController.dispose(); //播放器销毁
 
@@ -208,6 +210,7 @@ class _VideoPlayScreenState extends State<VideoPlayScreen>
                           splashColor: Colors.black,
                           iconSize: 50,
                           onPressed: () {
+                            DetailsController.current.shuaxin();
                             Get.back();
                           },
                           icon: Icon(

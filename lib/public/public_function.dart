@@ -1,3 +1,4 @@
+import 'package:ceshi1/common/commpents/reader/contants/floatcontroller.dart';
 import 'package:ceshi1/public/public_class_bean.dart';
 import 'package:ceshi1/untils/sp_util.dart';
 
@@ -74,19 +75,20 @@ void saveNote({required id,required map}){
     List text = jmap["text"];
     List note = jmap["note"];
     List color = jmap["color"];
+
     if(cfg.contains(map["cfg"])==true){
        print("已保存");
       int cfgindex = cfg.indexOf(map["cfg"]);
       text[cfgindex] = map["text"];
       note[cfgindex] = map["note"]==""?"空_":map["note"];
       color[cfgindex] = map["color"];
-      SpUtil.putObject(noteId, Map.castFrom({"id":map["id"],"cfg":cfg,"text":text,"note":note,"color":color}));
+      SpUtil.putObject(noteId, Map.castFrom({"id":map["id"],"bookname":FloatController.current.booknmae.value,"cfg":cfg,"text":text,"note":note,"color":color}));
     }else{
       cfg.add(map["cfg"]);
       text.add(map['text']);
       note.add(map["note"]==""?"空_":map["note"]);
       color.add(map["color"]);
-      SpUtil.putObject(noteId, Map.castFrom({"id":map["id"],"cfg":cfg,"text":text,"note":note,"color":color}));
+      SpUtil.putObject(noteId, Map.castFrom({"id":map["id"],"bookname":FloatController.current.booknmae.value,"cfg":cfg,"text":text,"note":note,"color":color}));
     }
     // if(jmap["cfg"].contains(map["cfg"])==true){
     //   print("已保存");
@@ -101,7 +103,7 @@ void saveNote({required id,required map}){
     
     // SpUtil.putObject(noteId, Map.castFrom(jmap));
   }else{
-    Map jmap =  {"id":map["id"],"cfg":[map["cfg"]],"text":[map["text"]],"note":[map["note"].toString()==""?"空_":map["note"].toString(),],"color":[map["color"]]};
+    Map jmap =  {"id":map["id"],"bookname":FloatController.current.booknmae.value,"cfg":[map["cfg"]],"text":[map["text"]],"note":[map["note"].toString()==""?"空_":map["note"].toString(),],"color":[map["color"]]};
     // jmap["cfg"] = jmap["cfg"].add(map["cfg"]);
     // jmap["text"] =   jmap["text"].add(map["text"]);
     // jmap["note"] = jmap["note"].add(map["note"]);

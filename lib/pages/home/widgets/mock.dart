@@ -2,7 +2,7 @@ import 'package:ceshi1/config/dataconfig/normal_string_config.dart';
 import 'package:ceshi1/untils/sp_util.dart';
 import 'package:sticky_and_expandable_list/sticky_and_expandable_list.dart';
 
-import '../../../public/public_class_bean.dart';
+
 import '../../../public/public_function.dart';
 
 ///
@@ -15,6 +15,7 @@ class MockData {
       [int sectionSize = 10, int itemSize = 5]) {
     var sections = List<ExampleSection>.empty(growable: true);
 
+   print(SpUtil.getKeys());
     List<String> keys = [];
 
     SpUtil.getKeys()!.toList().map((e) {
@@ -23,16 +24,22 @@ class MockData {
       }
     }).toList();
 
-    keys.map((id) {
-      BookInfoMap bookInfoMap = getBookInfoidMap(id: id);
-      var info = SpUtil.getObject(getNoteId(id: id));
 
+    if(keys.isEmpty){
+        return sections;
+    }
+
+
+    keys.map((id) {
+
+      //BookInfoMap bookInfoMap = getBookInfoidMap(id: id);
+      var info = SpUtil.getObject(getNoteId(id: id));
       List cfg = info!["cfg"];
       List note = info["note"];
       List<String> text1 = List<String>.from(info["text"]);
 
       var section = ExampleSection()
-        ..header = "${bookInfoMap.ietmName}"
+        ..header = "${info["bookname"]}"
         ..items = text1
         ..text = text1
         ..cfg = cfg

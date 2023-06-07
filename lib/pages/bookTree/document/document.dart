@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:ceshi1/untils/getx_untils.dart';
+import 'package:ceshi1/untils/utils_tool.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:get/get.dart';
 
 import '../../../public/public_class_bean.dart';
 import '../../../public/public_function.dart';
+import '../controller/detailscontroller.dart';
 
 class DocumentPdf extends StatefulWidget {
   const DocumentPdf({Key? key}) : super(key: key);
@@ -17,15 +20,24 @@ class DocumentPdf extends StatefulWidget {
 class _DocumentPdfState extends State<DocumentPdf> with WidgetsBindingObserver {
   final Completer<PDFViewController> _controller =
       Completer<PDFViewController>();
+
+late AsyncSnapshot<PDFViewController> snapshot;
   var path;
+
+  bool isvertical = true;
   @override
   void initState() {
     // TODO: implement initState
-    path = currentGetArguments();
-    print(currentGetArguments());
+
     super.initState();
+    if (mounted) {
+      UtilsToll.verticalScreen();
+      path = currentGetArguments();
+    }
+    // UtilsToll.verticalScreen();
   }
 
+  @override
   int? pages = 0;
   int? currentPage = 0;
   bool isReady = false;
@@ -41,16 +53,26 @@ class _DocumentPdfState extends State<DocumentPdf> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(path["FileName"]),
-       
+        title: Text(path["FileName"].toString().trim()),
+        leading: IconButton(
+            onPressed: () {
+              if (mounted) {
+                UtilsToll.ladnspaceScree();
+              }
+              DetailsController.current.shuaxin();
+
+              Get.back();
+            },
+            icon: const Icon(
+              Icons.arrow_back,
+              color: Colors.white,
+            )),
       ),
       backgroundColor: Colors.red,
       body: Stack(
         children: <Widget>[
           PDFView(
-            filePath: path[
-              "FilePath"
-            ],
+            filePath: path["FilePath"],
             enableSwipe: true,
             swipeHorizontal: true,
             autoSpacing: true,
@@ -64,6 +86,11 @@ class _DocumentPdfState extends State<DocumentPdf> with WidgetsBindingObserver {
               setState(() {
                 pages = _pages;
                 isReady = true;
+                
+          SourceMap sourceMap = getsourceidMap(id: path["id"]);      
+          snapshot.data!.setPage(pages! ~/ (sourceMap.progress/100));
+                
+
               });
             },
             onError: (error) {
@@ -86,10 +113,11 @@ class _DocumentPdfState extends State<DocumentPdf> with WidgetsBindingObserver {
             },
             onPageChanged: (int? page, int? total) {
               //保存进度
-              double progress = double.tryParse(((page!/(total!-1))*100).toStringAsFixed(2))!;
-print(progress);
-             saveprogress(progress, path["id"], page);
-              
+              double progress = double.tryParse(
+                  ((page! / (total! - 1)) * 100).toStringAsFixed(2))!;
+              print(progress);
+              saveprogress(progress, path["id"], page);
+
               setState(() {
                 currentPage = page;
               });
@@ -97,7 +125,7 @@ print(progress);
           ),
           errorMessage.isEmpty
               ? !isReady
-                  ? Center(
+                  ? const Center(
                       child: CircularProgressIndicator(),
                     )
                   : Container()
@@ -109,11 +137,22 @@ print(progress);
       floatingActionButton: FutureBuilder<PDFViewController>(
         future: _controller.future,
         builder: (context, AsyncSnapshot<PDFViewController> snapshot) {
+          this.snapshot = snapshot;
           if (snapshot.hasData) {
             return FloatingActionButton.extended(
-              label: Text("Go to ${pages! ~/ 2}"),
+              label: Row(
+                children: [
+                  isvertical ? const Icon(Icons.tablet) : const Icon(Icons.tablet_android),
+                  Text(isvertical ? "横屏" : "竖屏")
+                ],
+              ), //Text("Go to ${pages! ~/ 2}"),
               onPressed: () async {
-                await snapshot.data!.setPage(pages! ~/ 2);
+                // await snapshot.data!.setPage(pages! ~/ 2);
+
+                isvertical
+                    ? UtilsToll.ladnspaceScree()
+                    : UtilsToll.verticalScreen();
+                isvertical = !isvertical;
               },
             );
           }

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:get/get.dart';
 
-import '../../../../widgets/SelectContextMenu.dart';
+import '../common/SelectContextMenu.dart';
 
 class ReaderTheme {
   final Color readerBackgroundColor;
@@ -141,6 +141,11 @@ class ReaderThemeC extends GetxController{
   ScrollController tocScrollController = ScrollController(keepScrollOffset: true);
 
   Rx<String> inputvalue = "".obs;
+
+  //note变量控制
+  Rx tocButtonsCurrentIndex = 0.obs;
+  PageController tocPageController = PageController(initialPage: 0);
+  int bookid = 0;
   changeTheme(type){
     theme = type;
   }

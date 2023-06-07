@@ -1,20 +1,13 @@
 import 'dart:async';
-import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/commpents/reader/contants/theme.dart';
-import 'package:ceshi1/common/commpents/reader/reader_view.dart';
-import 'package:ceshi1/config/dataconfig/normal_string_config.dart';
 import 'package:ceshi1/public/public_class_bean.dart';
 import 'package:ceshi1/public/public_function.dart';
 import 'package:ceshi1/untils/sp_util.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
+// import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:string_similarity/string_similarity.dart';
+
 
 enum TtsState { playing, stopped, paused, continued }
 
@@ -35,6 +28,8 @@ class FloatController extends GetxController {
   RxBool isShowReadView = false.obs;
   RxDouble progress = 0.0.obs;
 
+  Rx<String> booknmae = "".obs;
+
   late InAppWebViewController webViewController;
 
   //这里用来判断用户是否点了跳转目录
@@ -45,7 +40,6 @@ class FloatController extends GetxController {
   String readtext = "";
   //记录原来位置 回到原来位置时再ontac=tfalse 再记录进度
   String currentlocation = "";
-  backToc() {}
 
   ///保存用户进度
   ///
@@ -81,23 +75,23 @@ class FloatController extends GetxController {
     }
   }
 
-  Future<String> ocr() async {
-    Directory tempDir = await getTemporaryDirectory();
-    Uint8List? bytes =
-        await ReaderThemeC.current.webViewController.takeScreenshot();
-    String dir = tempDir.path;
+  // Future<String> ocr() async {
+  //   Directory tempDir = await getTemporaryDirectory();
+  //   Uint8List? bytes =
+  //       await ReaderThemeC.current.webViewController.takeScreenshot();
+  //   String dir = tempDir.path;
 
-    File file = File('$dir/test.webp');
-    await file.writeAsBytes(bytes!);
-    final url = file.path;
-    var ocrText =
-        await FlutterTesseractOcr.extractText(url, language: "chi_sim", args: {
-      "psm": "2",
-      "preserve_interword_spaces": "1",
-    });
+  //   File file = File('$dir/test.webp');
+  //   await file.writeAsBytes(bytes!);
+  //   final url = file.path;
+  //   var ocrText =
+  //       await FlutterTesseractOcr.extractText(url, language: "chi_sim", args: {
+  //     "psm": "2",
+  //     "preserve_interword_spaces": "1",
+  //   });
 
-    return ocrText.replaceAll(RegExp(r" "), "");
-  }
+  //   return ocrText.replaceAll(RegExp(r" "), "");
+  // }
 
   removeSimilarParagraphs(String text1, String text2) {
     // Split text into paragraphs
@@ -119,8 +113,8 @@ class FloatController extends GetxController {
 
   startPlay() async {
     var result = 0;
-
-    print(removeSimilarParagraphs(readtextactive, readtext));
+  print(removeSimilarParagraphs(readtextactive, readtext));
+    // print(removeSimilarParagraphs(readtextactive, readtext));
     result = await FloatController.current
         .speak(removeSimilarParagraphs(readtextactive, readtext));
     readtextactive = readtext;

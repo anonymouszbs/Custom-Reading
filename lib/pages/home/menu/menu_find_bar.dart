@@ -1,13 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:ui';
 
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ceshi1/common/network/download.dart';
 import 'package:ceshi1/common/network/findbookApi.dart';
 import 'package:ceshi1/config/controller/user_state_controller.dart';
-import 'package:ceshi1/config/dataconfig/normal_string_config.dart';
 import 'package:ceshi1/pages/bookTree/routers/booktree_page_id.dart';
 import 'package:ceshi1/pages/home/common/selectdimension2.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
@@ -19,11 +17,11 @@ import 'package:get/get.dart';
 import '../../../common/network/ApiServices.dart';
 import '../../../public/public_class_bean.dart';
 import '../../../public/public_function.dart';
-import '../../../untils/sp_util.dart';
 import '../../../widgets/animation/animationposition.dart';
 import '../../../widgets/public/SliverGridDelegateWithFixedSize.dart';
 import '../../../widgets/public/loading1.dart';
 import '../../../widgets/public/textwidget.dart';
+import '../../bookTree/controller/detailscontroller.dart';
 import '../common/selectOptions.dart';
 import '../controller/leftbarcontroller.dart';
 
@@ -238,15 +236,23 @@ class _MenuFindBarState extends State<MenuFindBar>
 // SourceMap sourceMap = getsourceidMap(id:11);
 
 // print(sourceMap.toJson().toString());
-                    findKey(
-                                id: getBookInfoid(
-                                    id: data[index]["ietm_id"])) ==
-                            true
-                        ? currentToPage(BookTreePageId.bookdetails, arguments: [
-                            data[index]["ietm_id"],
-                            ApiService.AppUrl + data[index]["Thumbnail"]
-                          ])
-                        : BotToast.showText(text: "还未下载，请先下载本资源");
+var id = data[index]["ietm_id"];
+                    DetailsController.current.setDetails(
+                        bookid:id,
+                        bookimage:
+                            ApiService.AppUrl + data[index]["Thumbnail"]);
+
+                  
+                    if (findKey(
+                            id: getBookInfoid(id:id)) ==
+                        true) {
+                      currentToPage(BookTreePageId.bookdetails);
+                    }else{
+                        DetailsController.current.index = index;
+                      DetailsController.current.currentindex = currentindex;
+                      DetailsController.current.initdata(ietmid: id);
+                       currentToPage(BookTreePageId.bookdetailsPreview);
+                    }
                   },
                   child: Container(
                     padding: const EdgeInsets.only(

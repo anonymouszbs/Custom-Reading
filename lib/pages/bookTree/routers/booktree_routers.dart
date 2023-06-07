@@ -1,5 +1,6 @@
 
 import 'package:ceshi1/pages/bookTree/book_details.dart';
+import 'package:ceshi1/pages/bookTree/book_details_preview.dart';
 import 'package:ceshi1/pages/bookTree/document/document.dart';
 import 'package:get/get.dart';
 
@@ -13,8 +14,9 @@ class BookTreePages{
   BookTreePages._();
   static final routers = {
     GetPage(name: BookTreePageId.booktree,page: ()=>const AnimationsTB(child:  BookTreePage())),
-    GetPage(name: BookTreePageId.bookdetails,page: ()=>const AnimationsTB(child:   BookDetailsPage())),
+    GetPage(name: BookTreePageId.bookdetails,page: ()=>const BookDetailsPage()),
     GetPage(name: BookTreePageId.video,page: ()=> const VideoPlayScreen()),
-    GetPage(name: BookTreePageId.documentpdf,page: ()=>const DocumentPdf())
+    GetPage(name: BookTreePageId.documentpdf,page: ()=>const DocumentPdf()),
+    GetPage(name: BookTreePageId.bookdetailsPreview, page: ()=> const BookDetailsPreview())
   };
 }

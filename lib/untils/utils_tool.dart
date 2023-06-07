@@ -56,7 +56,7 @@ class UtilsToll {
   void copyFiles({String? sourcePath, String? destinationPath}) {
     // 获取源目录下的所有文件列表
     File source = File(sourcePath!);
-    
+
     Directory destination = Directory(destinationPath!);
     source.copy('${destination.path}/${source.path.split('/').last}');
   }
@@ -68,5 +68,17 @@ class UtilsToll {
     for (var file in files) {
       print(file.path);
     }
+  }
+
+  //横屏
+  static void ladnspaceScree() {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+  }
+
+  //竖屏
+  static void verticalScreen() {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 }

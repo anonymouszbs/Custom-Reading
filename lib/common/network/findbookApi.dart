@@ -27,6 +27,8 @@ class FindBookApi{
     postdata ["UserID"]  = UserStateController.current.user.id.toString();
     postdata ["username"] = UserStateController.current.user.username.toString();
     postdata ["pwd"] = UserStateController.current.user.pwd.toString();
+    print(downloadUrl);
+    print(postdata);
     return await _dio.post(downloadUrl, data: postdata, options: Options(headers: options));
   }
 }

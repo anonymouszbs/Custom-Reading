@@ -8,9 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:sticky_and_expandable_list/sticky_and_expandable_list.dart';
 
-import '../../../common/commpents/reader/routers.dart/reader_page_id.dart';
-import '../../../untils/getx_untils.dart';
-import '../widgets/mock.dart';
+import '../../../../pages/home/widgets/mock.dart';
+import '../../../../untils/getx_untils.dart';
+import '../routers.dart/reader_page_id.dart';
+
+
 
 class ExampleCustomSectionAnimation extends StatefulWidget {
   @override
@@ -37,9 +39,7 @@ class _ExampleCustomSectionAnimationState
               focusColor: Colors.black,
               onTap: () {
                 print(SpUtil.getKeys());
-
-                
-                var id = sectionList[sectionIndex].id;
+                var id = sectionList[sectionIndex].id.toString();
                   print(id);
 
                 SourceMap sourceMap = getsourceidMap(id: id);
@@ -47,7 +47,7 @@ class _ExampleCustomSectionAnimationState
        print(cfg);
 
                 currentToPage(ReaderPageId.reader,
-                    arguments: [sourceMap.filepath, {"id":int.parse(id),"posi":cfg}]);
+                    arguments: [sourceMap.filepath, {"id":id,"posi":cfg}]);
 
               },
               child: ListTile(
