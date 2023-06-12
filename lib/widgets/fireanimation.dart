@@ -1,4 +1,3 @@
-
 const fireanimation = '''
 <!DOCTYPE html>
 <html>
@@ -12,7 +11,7 @@ const fireanimation = '''
       margin: 0;
       padding: 0;
     }
-
+    
     canvas {
       width: 100%;
       height: 100%;
@@ -21,11 +20,85 @@ const fireanimation = '''
       left: 0;
       z-index: -1;
     }
+   
+    @import url(https://fonts.googleapis.com/css?family=Concert+One);
+
+h1 {
+  animation:glow 10s ease-in-out infinite;
+  
+  
+
+/* For less laggy effect, uncomment this:
+  
+  animation:none;
+  -webkit-text-stroke:1px #fff; 
+  
+=========== */
+  
+}
+
+
+
+* { box-sizing:border-box; }
+
+body {
+  // background:#0a0a0a;
+  overflow:hidden;
+  text-align:center;
+}
+
+figure {
+  animation:wobble 5s ease-in-out infinite;
+  transform-origin:center center;
+  transform-style:preserve-3d;
+}
+
+@keyframes wobble {
+  0%,100%{ transform:rotate3d(1,1,0,10deg); }
+  25%{ transform:rotate3d(-1,1,0,10deg); }
+  50%{ transform:rotate3d(-1,-1,0,10deg); }
+  75%{ transform:rotate3d(1,-1,0,10deg); }
+}
+
+h1 {
+  display:block;
+  width:50%;
+ top:200px;
+        right: 0;
+  line-height:1.5;
+  font:600 3em 'Concert One', sans-serif;
+  text-transform:uppercase;
+  position:absolute;
+  color:#0a0a0a;
+}
+
+@keyframes glow {
+  0%,100%{ text-shadow:0 0 30px red; }
+  25%{ text-shadow:0 0 30px red; }
+  50%{ text-shadow:0 0 30px red; }
+  75%{ text-shadow:0 0 30px cyan; }
+}
+
+h1:nth-child(2){ transform:translateZ(5px); }
+h1:nth-child(3){ transform:translateZ(10px);}
+h1:nth-child(4){ transform:translateZ(15px); }
+h1:nth-child(5){ transform:translateZ(20px); }
+h1:nth-child(6){ transform:translateZ(25px); }
+h1:nth-child(7){ transform:translateZ(30px); }
+h1:nth-child(8){ transform:translateZ(35px); }
+h1:nth-child(9){ transform:translateZ(40px); }
+h1:nth-child(10){ transform:translateZ(45px); }
   </style>
 </head>
 
 <body>
   <canvas id="canvas"></canvas>
+    <figure>
+  <h1>严守保密记录</br></br>筑牢保密防线</h1>
+  <h1>严守保密记录</br></br>筑牢保密防线</h1>
+  <h1>严守保密记录</br></br>筑牢保密防线</h1>
+ 
+</figure>
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');

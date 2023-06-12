@@ -53,8 +53,9 @@ dependencies:
   # epub_view: ^3.0.0
   #浏览器
   flutter_inappwebview: ^6.0.0-beta.22
-  #权限管理
-  permission_handler: ^10.2.0
+  #系统管理
+  device_info_plus: ^9.0.2 #设备信息管理
+  permission_handler: ^10.2.0 #权限管理
   #土司
   bot_toast: ^4.0.3
   #本地数据存储
@@ -78,10 +79,12 @@ dependencies:
   #日志打印
   logger: ^1.1.0
   flutter_treeview: ^1.0.7+1
+  
   #文件处理
   flutter_pdfview: ^1.3.1 #pdf
   sticky_and_expandable_list: ^1.1.2 #列表处理
-  #docx
+  ###判断违规外联
+  connectivity_plus: ^2.3.9
 dev_dependencies:
   flutter_test:
     sdk: flutter

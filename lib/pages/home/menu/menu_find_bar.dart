@@ -236,22 +236,19 @@ class _MenuFindBarState extends State<MenuFindBar>
 // SourceMap sourceMap = getsourceidMap(id:11);
 
 // print(sourceMap.toJson().toString());
-var id = data[index]["ietm_id"];
+                    var id = data[index]["ietm_id"];
                     DetailsController.current.setDetails(
-                        bookid:id,
+                        bookid: id,
                         bookimage:
                             ApiService.AppUrl + data[index]["Thumbnail"]);
 
-                  
-                    if (findKey(
-                            id: getBookInfoid(id:id)) ==
-                        true) {
+                    if (findKey(id: getBookInfoid(id: id)) == true) {
                       currentToPage(BookTreePageId.bookdetails);
-                    }else{
-                        DetailsController.current.index = index;
+                    } else {
+                      DetailsController.current.index = index;
                       DetailsController.current.currentindex = currentindex;
                       DetailsController.current.initdata(ietmid: id);
-                       currentToPage(BookTreePageId.bookdetailsPreview);
+                      currentToPage(BookTreePageId.bookdetailsPreview);
                     }
                   },
                   child: Container(
@@ -880,7 +877,8 @@ var id = data[index]["ietm_id"];
                 height: ScreenUtil().setSp(50),
                 fit: BoxFit.fill,
               ),
-            ))
+            )),
+        
       ],
     );
   }

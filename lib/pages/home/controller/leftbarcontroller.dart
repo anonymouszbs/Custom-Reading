@@ -1,5 +1,6 @@
 
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 
@@ -11,5 +12,5 @@ static LeftBarCtr get current => Get.find<LeftBarCtr>();
 
   RxInt subint = 0.obs;
 
-  
+  Rx<IconData> iconData = Icons.phonelink_erase_rounded.obs;
 }

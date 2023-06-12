@@ -289,11 +289,7 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
                         fit: BoxFit.contain,
                         height: ScreenUtil().setSp(200),
                       ))
-                  : Icon(
-                      Icons.star,
-                      color: Color(0xffFFC54F),
-                      size: ScreenUtil().setSp(60),
-                    ),
+                  : Image.asset("assets/img/logo.png",fit: BoxFit.cover,height: 100.sp,),
               taploginbutton
                   ? Text(
                       listentext,
@@ -305,10 +301,10 @@ class _TranspState extends State<Transp> with SingleTickerProviderStateMixin {
                       textAlign: TextAlign.center,
                     )
                   : Text(
-                      "LOGO",
+                      "IETM 电子教材",
                       style: TextStyle(
                           color: Colors.white,
-                          fontSize: ScreenUtil().setSp(56),
+                          fontSize: ScreenUtil().setSp(40),
                           fontWeight: FontWeight.bold),
                     )
             ],

@@ -36,10 +36,9 @@ class HonorPage extends StatelessWidget {
       height: size,
       width: size,
       child: const CircleAvatar(
+        backgroundColor: Colors.transparent,
         radius: 50,
-        backgroundImage: NetworkImage(
-            'http://q2.qlogo.cn/headimg_dl?dst_uin=2669771396&spec=100',
-            scale: 1.0),
+        backgroundImage: AssetImage("assets/img/head.png"),
       ),
     );
   }
@@ -856,10 +855,7 @@ class HonorPage extends StatelessWidget {
                                         SizedBox(
                                           width: 120.w,
                                           height: 160.h,
-                                          child: Image.network(
-                                            "https://th.bing.com/th/id/R.125bfedd544cb80dd83404f30ea6a503?rik=3RMuq3G%2fJotDZw&riu=http%3a%2f%2fi1.img.969g.com%2fnews%2fimgx2015%2f03%2f06%2f310_140414_e92f3.jpg&ehk=CpLQUQ2n3RJP1TP70Si%2bS7asv2d2l8%2bH3pyKbDkgjEU%3d&risl=&pid=ImgRaw&r=0",
-                                            fit: BoxFit.fill,
-                                          ),
+                                          child: Image.asset("assets/img/bookcover.jpg"),
                                         ),
                                         SizedBox(
                                           width: 12.w,

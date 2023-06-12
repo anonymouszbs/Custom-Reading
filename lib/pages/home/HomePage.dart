@@ -1,19 +1,25 @@
 
 
+import 'dart:async';
+
+import 'package:ceshi1/common/network/ApiServices.dart';
 import 'package:ceshi1/pages/home/menu/menu_study_bar.dart';
 import 'package:ceshi1/pages/my/routers/my_page_id.dart';
 import 'package:ceshi1/untils/getx_untils.dart';
 
 import 'package:ceshi1/widgets/public/Logo.dart';
 import 'package:ceshi1/widgets/public/pub_bg.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 
 import '../../common/keepalive.dart';
 import '../../widgets/animation/fadeanimation.dart';
+import 'controller/leftbarcontroller.dart';
 import 'honor/honor.dart';
 import 'menu/menu_find_bar.dart';
 import 'menu/menu_leftbar.dart';
@@ -28,13 +34,49 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
  // late LeftBarCtr leftBarCtr = Get.find<LeftBarCtr>();
   late PageController leftBarCtr = PageController(initialPage: 0);
+  IconData iconData = Icons.phonelink_erase_rounded;//显示联网图标;
   @override
   void initState() {
     // TODO: implement initState
 
     super.initState();
+    Timer.periodic(Duration(milliseconds: 3000), (timer) {
+      addlistenwifi();
+     });
+  }
+void addlistenwifi()async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    switch (connectivityResult) {
+      case ConnectivityResult.mobile:
+        sendUserauditillegal(code: "违规连接移动网络");
+        LeftBarCtr.current.iconData.value = Icons.settings_input_hdmi;
+        break;
+      case ConnectivityResult.ethernet:
+          sendUserauditillegal(code: "违规连接了网线");
+         LeftBarCtr.current.iconData.value = Icons.settings_input_hdmi;
+        break;  
+      case ConnectivityResult.wifi:
+        sendUserauditillegal(code: "违规链接移动wifi");
+         LeftBarCtr.current.iconData.value = Icons.wifi;
+        break;   
+      case ConnectivityResult.none:
+         LeftBarCtr.current.iconData.value = Icons.phonelink_erase_outlined;
+        break;     
+      case ConnectivityResult.bluetooth:
+      LeftBarCtr.current.iconData.value = Icons.bluetooth;
+        sendUserauditillegal(code: "违规连接了蓝牙");
+        break;  
+      default:
+         LeftBarCtr.current.iconData.value = Icons.close;
+    }
+    
   }
 
+  sendUserauditillegal({code})async{
+    var data = {"illegalType":code};
+    await ApiService.listenUserauditillegal(data);
+  }
+  
   @override
   Widget build(BuildContext context) {
     
@@ -91,6 +133,8 @@ class _HomePageState extends State<HomePage> {
                           },
                         ),
                       ),
+                      const SizedBox(height: 20,),
+                      Obx(() => IconButton(onPressed: () {}, icon: Icon( LeftBarCtr.current.iconData.value,color: Colors.yellow,size: 50.sp,)),),
                       Container(
                         padding:
                             EdgeInsets.only(bottom: ScreenUtil().setHeight(50)),
@@ -101,6 +145,7 @@ class _HomePageState extends State<HomePage> {
                           child: Stack(
                             alignment: Alignment.centerLeft,
                             children: [
+                              
                               Image.asset(
                                 "assets/img/btn_to_user_center.png",
                                 fit: BoxFit.cover,
@@ -114,10 +159,9 @@ class _HomePageState extends State<HomePage> {
                                       width: 30,
                                       height: 30,
                                       child: CircleAvatar(
+                                        backgroundColor: Colors.transparent,
                                         radius: 50,
-                                        backgroundImage: NetworkImage(
-                                            'http://q2.qlogo.cn/headimg_dl?dst_uin=2669771396&spec=100',
-                                            scale: 1.0),
+                                        backgroundImage: AssetImage("assets/img/head.png"),
                                       ),
                                     ),
                                     Text(

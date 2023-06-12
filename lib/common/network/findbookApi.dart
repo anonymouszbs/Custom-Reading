@@ -5,7 +5,7 @@ import 'package:ceshi1/config/controller/user_state_controller.dart';
 import 'package:dio/dio.dart';
 
 class FindBookApi{
-  static final Dio _dio = Dio();
+
   static Map<String, dynamic> options = {
     'headers': {'Content-Type': 'application/json'},
   };
@@ -17,7 +17,7 @@ class FindBookApi{
     var postdata = data;
     postdata ["UserID"]  = UserStateController.current.user.id.toString();
 
-    return await _dio.post(baseUrl, data: postdata, options: Options(headers: options));
+    return await ApiService.post(baseUrl, data: postdata, options: Options(headers: options));
   }
 
   static const String downloadUrl = '${ApiService.baseUrl}download';
@@ -29,6 +29,6 @@ class FindBookApi{
     postdata ["pwd"] = UserStateController.current.user.pwd.toString();
     print(downloadUrl);
     print(postdata);
-    return await _dio.post(downloadUrl, data: postdata, options: Options(headers: options));
+    return await ApiService.post(downloadUrl, data: postdata, options: Options(headers: options));
   }
 }

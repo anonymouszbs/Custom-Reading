@@ -198,9 +198,8 @@ class BookDetailsPreview extends StatelessWidget {
                                                     true) {
                                                       BotToast.cleanAll();
                                                   _timer.cancel();
-                                                  currentTo(
-                                                      name: BookTreePageId
-                                                          .bookdetails);
+
+                                                  Get.offNamed(BookTreePageId.bookdetails);;
                                                 }
                                               });
                                             },

@@ -13,8 +13,11 @@ class Pub_Bg extends StatefulWidget {
   State<Pub_Bg> createState() => _Pub_BgState();
 }
 
+@override
+
 // ignore: camel_case_types
 class _Pub_BgState extends State<Pub_Bg> {
+
   @override
   Widget build(BuildContext context) {
     return  FadeInWidget( key: GlobalKey(), child: Stack(
@@ -31,8 +34,6 @@ class _Pub_BgState extends State<Pub_Bg> {
         Positioned.fill(
             child: InAppWebView(
                     initialData: InAppWebViewInitialData(data: fireanimation),
-                    onWebViewCreated: (controller) {
-                    },
                     initialSettings: InAppWebViewSettings(
                       transparentBackground: true,
                       disableHorizontalScroll: true, //开启横向滚动
